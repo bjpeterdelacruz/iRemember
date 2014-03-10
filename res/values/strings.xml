@@ -157,8 +157,8 @@ University of Maryland to appear in their names.
     <string name="story_create_add_image_button_text_value">Add Photo</string>
     <string name="story_create_set_time_text_value">Set Time</string>
     <string name="story_create_add_location_button_text_value">Get Location</string>
-    <string name="story_create_latitude_text_value">Latitude</string>
-    <string name="story_create_longitude_text_value">Longitude</string>
+    <string name="story_create_latitude_text_value">Lat</string>
+    <string name="story_create_longitude_text_value">Lng</string>
     <string name="story_create_button_label_clear">Clear</string>
     <string name="story_create_button_label_cancel">Cancel</string>
     <string name="story_create_button_label_create">Create</string>

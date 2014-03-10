@@ -31,7 +31,7 @@
             <EditText
                 android:id="@+id/story_create_value_body"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="100dp"
                 android:layout_span="3"
                 android:hint="@string/story_create_body_hint_value"
                 android:inputType="text" />
