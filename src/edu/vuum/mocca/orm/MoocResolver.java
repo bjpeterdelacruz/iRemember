@@ -437,7 +437,7 @@ public class MoocResolver {
 	 */
 	public int updateStoryWithID(StoryData data) throws RemoteException {
 		String selection = "_id = ?";
-		String[] selectionArgs = { String.valueOf(data.KEY_ID) };
+		String[] selectionArgs = { String.valueOf(data.getKeyId()) };
 		return updateStoryData(data, selection, selectionArgs);
 	}
 

@@ -84,9 +84,9 @@ public class StoryDataArrayAdaptor extends ArrayAdapter<StoryData> {
         try {
             StoryData item = getItem(position);
 
-            long KEY_ID = item.KEY_ID;
-            String title = item.title;
-            long creationTime = item.storyTime;
+            long KEY_ID = item.getKeyId();
+            String title = item.getTitle();
+            long creationTime = item.getStoryTime();
             
             if (convertView == null) {
                 todoView = new LinearLayout(getContext());
@@ -109,7 +109,7 @@ public class StoryDataArrayAdaptor extends ArrayAdapter<StoryData> {
             KEY_IDTV.setText("" + KEY_ID);
             titleTV.setText("" + title);
             creationTimeTV.setText("" + StoryData.FORMAT.format(creationTime));
-            Log.i("StoryDataArrayAdaptor", String.valueOf(item.creationTime));
+            Log.i("StoryDataArrayAdaptor", String.valueOf(item.getCreationTime()));
             
         } catch (Exception e) {
             Toast.makeText(getContext(),

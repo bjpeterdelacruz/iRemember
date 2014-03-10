@@ -50,7 +50,6 @@ package edu.vuum.mocca.ui.story;
 
 import java.text.ParseException;
 import java.util.Date;
-
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -72,254 +71,244 @@ import edu.vuum.mocca.orm.StoryData;
 
 public class EditStoryFragment extends Fragment {
 
-	final static public String LOG_TAG = EditStoryFragment.class
-			.getCanonicalName();
-	// variable for passing around row index
-	final static public String rowIdentifyerTAG = "index";
-	EditText titleET;
-	EditText bodyET;
-	TextView audioLinkET;
-	TextView videoLinkET;
-	EditText imageNameET;
-	TextView imageMetaDataET;
-	EditText tagsET;
-	TextView storyTimeET;
-	Date date;
-	EditText latitudeET;
-	EditText longitudeET;
+  private final static String LOG_TAG = EditStoryFragment.class.getCanonicalName();
+  // variable for passing around row index
+  final static String ROW_IDENTIFIER_TAG = "index";
+  private EditText titleET;
+  private EditText bodyET;
+  private TextView audioLinkET;
+  private TextView videoLinkET;
+  private EditText imageNameET;
+  private TextView imageMetaDataET;
+  private EditText tagsET;
+  private TextView storyTimeET;
+  private Date date;
+  private EditText latitudeET;
+  private EditText longitudeET;
 
-	// Button(s) used
-	Button saveButton;
-	Button resetButton;
-	Button cancelButton;
+  private Button saveButton;
+  private Button resetButton;
+  private Button cancelButton;
 
-	// parent Activity
-	OnOpenWindowInterface mOpener;
-	// custom ContentResolver wrapper.
-	MoocResolver resolver;
+  // parent Activity
+  private OnOpenWindowInterface mOpener;
+  // custom ContentResolver wrapper.
+  private MoocResolver resolver;
 
-	// listener to button presses.
-	// TODO determine/label pattern.
-	OnClickListener myOnClickListener = new OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			switch (v.getId()) {
-			case R.id.story_edit_button_save:
-				doSaveButtonClick();
-				break;
-			case R.id.story_edit_button_reset:
-				doResetButtonClick();
-				break;
-			case R.id.story_edit_button_cancel:
-				doCancelButtonClick();
-				break;
-			default:
-				break;
-			}
-		}
-	};
+  // listener to button presses.
+  // TODO determine/label pattern.
+  private OnClickListener myOnClickListener = new OnClickListener() {
+    @Override
+    public void onClick(View v) {
+      switch (v.getId()) {
+      case R.id.story_edit_button_save:
+        doSaveButtonClick();
+        break;
+      case R.id.story_edit_button_reset:
+        doResetButtonClick();
+        break;
+      case R.id.story_edit_button_cancel:
+        doCancelButtonClick();
+        break;
+      default:
+        break;
+      }
+    }
+  };
 
-	public static EditStoryFragment newInstance(long index) {
-		EditStoryFragment f = new EditStoryFragment();
-		// Supply index input as an argument.
-		Bundle args = new Bundle();
-		args.putLong(rowIdentifyerTAG, index);
-		f.setArguments(args);
-		return f;
-	}
+  public static EditStoryFragment newInstance(long index) {
+    EditStoryFragment f = new EditStoryFragment();
+    // Supply index input as an argument.
+    Bundle args = new Bundle();
+    args.putLong(ROW_IDENTIFIER_TAG, index);
+    f.setArguments(args);
+    return f;
+  }
 
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		try {
-			mOpener = (OnOpenWindowInterface) activity;
-			resolver = new MoocResolver(activity);
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString()
-					+ " must implement OnOpenWindowListener");
-		}
-	}
+  @Override
+  public void onAttach(Activity activity) {
+    super.onAttach(activity);
+    try {
+      mOpener = (OnOpenWindowInterface) activity;
+      resolver = new MoocResolver(activity);
+    }
+    catch (ClassCastException e) {
+      throw new ClassCastException(activity.toString() + " must implement OnOpenWindowListener");
+    }
+  }
 
-	@Override
-	public void onDetach() {
-		mOpener = null;
-		resolver = null;
-		super.onDetach();
-	}
+  @Override
+  public void onDetach() {
+    mOpener = null;
+    resolver = null;
+    super.onDetach();
+  }
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setRetainInstance(true);
-	}
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setRetainInstance(true);
+  }
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		// Get the Buttons
-		saveButton = (Button) getView().findViewById(
-				R.id.story_edit_button_save);
-		resetButton = (Button) getView().findViewById(
-				R.id.story_edit_button_reset);
-		cancelButton = (Button) getView().findViewById(
-				R.id.story_edit_button_cancel);
+  @Override
+  public void onActivityCreated(Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    // Get the Buttons
+    saveButton = (Button) getView().findViewById(R.id.story_edit_button_save);
+    resetButton = (Button) getView().findViewById(R.id.story_edit_button_reset);
+    cancelButton = (Button) getView().findViewById(R.id.story_edit_button_cancel);
 
-		// Get the EditTexts
-		titleET = (EditText) getView().findViewById(R.id.story_edit_title);
-		bodyET = (EditText) getView().findViewById(R.id.story_edit_body);
-		audioLinkET = (TextView) getView().findViewById(
-				R.id.story_edit_audio_link);
-		videoLinkET = (TextView) getView().findViewById(
-				R.id.story_edit_video_link);
-		imageNameET = (EditText) getView().findViewById(
-				R.id.story_edit_image_name);
-		imageMetaDataET = (TextView) getView().findViewById(
-				R.id.story_edit_image_meta_data);
-		tagsET = (EditText) getView().findViewById(R.id.story_edit_tags);
-		storyTimeET = (TextView) getView().findViewById(
-				R.id.story_edit_story_time);
-		latitudeET = (EditText) getView()
-				.findViewById(R.id.story_edit_latitude);
-		longitudeET = (EditText) getView().findViewById(
-				R.id.story_edit_longitude);
+    // Get the EditTexts
+    titleET = (EditText) getView().findViewById(R.id.story_edit_title);
+    bodyET = (EditText) getView().findViewById(R.id.story_edit_body);
+    audioLinkET = (TextView) getView().findViewById(R.id.story_edit_audio_link);
+    videoLinkET = (TextView) getView().findViewById(R.id.story_edit_video_link);
+    imageNameET = (EditText) getView().findViewById(R.id.story_edit_image_name);
+    imageMetaDataET = (TextView) getView().findViewById(R.id.story_edit_image_meta_data);
+    tagsET = (EditText) getView().findViewById(R.id.story_edit_tags);
+    storyTimeET = (TextView) getView().findViewById(R.id.story_edit_story_time);
+    latitudeET = (EditText) getView().findViewById(R.id.story_edit_latitude);
+    longitudeET = (EditText) getView().findViewById(R.id.story_edit_longitude);
 
-		// setup the onClick callback methods
-		saveButton.setOnClickListener(myOnClickListener);
-		resetButton.setOnClickListener(myOnClickListener);
-		cancelButton.setOnClickListener(myOnClickListener);
-		// set the EditTexts to this Story's Values
-		setValuesToDefault();
-	}
+    // setup the onClick callback methods
+    saveButton.setOnClickListener(myOnClickListener);
+    resetButton.setOnClickListener(myOnClickListener);
+    cancelButton.setOnClickListener(myOnClickListener);
+    // set the EditTexts to this Story's Values
+    setValuesToDefault();
+  }
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.story_edit_fragment, container,
-				false);
-		container.setBackgroundColor(Color.GRAY);
-		return view;
-	}
+  @Override
+  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    View view = inflater.inflate(R.layout.story_edit_fragment, container, false);
+    container.setBackgroundColor(Color.GRAY);
+    return view;
+  }
 
-	public void doResetButtonClick() {
-		setValuesToDefault();
-	}
+  public void doResetButtonClick() {
+    setValuesToDefault();
+  }
 
-	public void doSaveButtonClick() {
-		Toast.makeText(getActivity(), "Updated.", Toast.LENGTH_SHORT).show();
-		StoryData location = makeStoryDataFromUI();
-		if (location != null) {
-			try {
-				resolver.updateStoryWithID(location);
-			} catch (RemoteException e) {
-				e.printStackTrace();
-				return;
-			}
-		} else {
-			return;
-		}
-		if (getResources().getBoolean(R.bool.isTablet) == true) {
-			mOpener.openViewStoryFragment(getUniqueKey());
-		} else {
-			getActivity().finish(); // same as hitting 'back' button
-		}
-	}
+  public void doSaveButtonClick() {
+    Toast.makeText(getActivity(), "Updated.", Toast.LENGTH_SHORT).show();
+    StoryData location = makeStoryDataFromUI();
+    if (location != null) {
+      try {
+        resolver.updateStoryWithID(location);
+      }
+      catch (RemoteException e) {
+        e.printStackTrace();
+        return;
+      }
+    }
+    else {
+      return;
+    }
+    if (getResources().getBoolean(R.bool.isTablet) == true) {
+      mOpener.openViewStoryFragment(getUniqueKey());
+    }
+    else {
+      getActivity().finish(); // same as hitting 'back' button
+    }
+  }
 
-	public StoryData makeStoryDataFromUI() {
+  public StoryData makeStoryDataFromUI() {
 
-		Editable titleEditable = titleET.getText();
-		Editable bodyEditable = bodyET.getText();
-		String audioLinkEditable = (String) audioLinkET.getText();
-		String videoLinkEditable = (String) videoLinkET.getText();
-		Editable imageNameEditable = imageNameET.getText();
-		String imageMetaDataEditable = (String) imageMetaDataET.getText();
-		Editable tagsEditable = tagsET.getText();
-		String storyTimeEditable = (String) storyTimeET.getText();
-		Editable latitudeEditable = latitudeET.getText();
-		Editable longitudeEditable = longitudeET.getText();
+    Editable titleEditable = titleET.getText();
+    Editable bodyEditable = bodyET.getText();
+    String audioLinkEditable = (String) audioLinkET.getText();
+    String videoLinkEditable = (String) videoLinkET.getText();
+    Editable imageNameEditable = imageNameET.getText();
+    String imageMetaDataEditable = (String) imageMetaDataET.getText();
+    Editable tagsEditable = tagsET.getText();
+    String storyTimeEditable = (String) storyTimeET.getText();
+    Editable latitudeEditable = latitudeET.getText();
+    Editable longitudeEditable = longitudeET.getText();
 
-		// Try to parse the date into long format
-		try {
-			date = StoryData.FORMAT.parse(storyTimeEditable.toString());
-		} catch (ParseException e1) {
-			Log.e("CreateStoryFragment", "Date was not parsable, reverting to current time");
-			date = new Date();
-		}
-		
-		long loginId = 0;
-		long storyId = 0;
-		String title = "";
-		String body = "";
-		String audioLink = "";
-		String videoLink = "";
-		String imageName = "";
-		String imageMetaData = "";
-		String tags = "";
-		long creationTime = 0;
-		long storyTime = 0;
-		double latitude = 0;
-		double longitude = 0;
+    // Try to parse the date into long format
+    try {
+      date = StoryData.FORMAT.parse(storyTimeEditable.toString());
+    }
+    catch (ParseException e1) {
+      Log.e("CreateStoryFragment", "Date was not parsable, reverting to current time");
+      date = new Date();
+    }
 
-		// pull values from Editables
-		title = String.valueOf(titleEditable.toString());
-		body = String.valueOf(bodyEditable.toString());
-		audioLink = String.valueOf(audioLinkEditable.toString());
-		videoLink = String.valueOf(videoLinkEditable.toString());
-		imageName = String.valueOf(imageNameEditable.toString());
-		imageMetaData = String.valueOf(imageMetaDataEditable.toString());
-		tags = String.valueOf(tagsEditable.toString());
-		storyTime = date.getTime();
-		latitude = Double.valueOf(latitudeEditable.toString());
-		longitude = Double.valueOf(longitudeEditable.toString());
+    long loginId = 0;
+    long storyId = 0;
+    String title = "";
+    String body = "";
+    String audioLink = "";
+    String videoLink = "";
+    String imageName = "";
+    String imageMetaData = "";
+    String tags = "";
+    long creationTime = 0;
+    long storyTime = 0;
+    double latitude = 0;
+    double longitude = 0;
 
-		// return new StoryData object with
-		return new StoryData(getUniqueKey(), loginId, storyId, title, body,
-				audioLink, videoLink, imageName, imageMetaData, tags,
-				creationTime, storyTime, latitude, longitude);
+    // pull values from Editables
+    title = String.valueOf(titleEditable.toString());
+    body = String.valueOf(bodyEditable.toString());
+    audioLink = String.valueOf(audioLinkEditable.toString());
+    videoLink = String.valueOf(videoLinkEditable.toString());
+    imageName = String.valueOf(imageNameEditable.toString());
+    imageMetaData = String.valueOf(imageMetaDataEditable.toString());
+    tags = String.valueOf(tagsEditable.toString());
+    storyTime = date.getTime();
+    latitude = Double.valueOf(latitudeEditable.toString());
+    longitude = Double.valueOf(longitudeEditable.toString());
 
-	}
+    // return new StoryData object with
+    return new StoryData(getUniqueKey(), loginId, storyId, title, body, audioLink, videoLink, imageName, imageMetaData,
+        tags, creationTime, storyTime, latitude, longitude);
 
-	public void doCancelButtonClick() {
-		if (getResources().getBoolean(R.bool.isTablet) == true) {
-			// put
-			mOpener.openViewStoryFragment(getUniqueKey());
-		} else {
-			getActivity().finish(); // same as hitting 'back' button
-		}
+  }
 
-	}
+  public void doCancelButtonClick() {
+    if (getResources().getBoolean(R.bool.isTablet) == true) {
+      // put
+      mOpener.openViewStoryFragment(getUniqueKey());
+    }
+    else {
+      getActivity().finish(); // same as hitting 'back' button
+    }
 
-	public boolean setValuesToDefault() {
+  }
 
-		StoryData storyData;
-		try {
-			storyData = resolver.getStoryDataViaRowID(getUniqueKey());
-		} catch (RemoteException e) {
-			Log.d(LOG_TAG, "" + e.getMessage());
-			e.printStackTrace();
-			return false;
-		}
+  public boolean setValuesToDefault() {
 
-		if (storyData != null) {
-			Log.d(LOG_TAG, "setValuesToDefualt :" + storyData.toString());
-			// set the EditTexts to the current values
-			titleET.setText(String.valueOf(storyData.title).toString());
-			bodyET.setText(String.valueOf(storyData.body).toString());
-			audioLinkET.setText("file:///" + String.valueOf(storyData.audioLink).toString());
-			videoLinkET.setText(String.valueOf(storyData.videoLink).toString());
-			imageNameET.setText(String.valueOf(storyData.imageName).toString());
-			imageMetaDataET.setText(String.valueOf(storyData.imageLink)
-					.toString());
-			tagsET.setText(String.valueOf(storyData.tags).toString());
-			storyTimeET.setText(StoryData.FORMAT.format(storyData.storyTime));
-			latitudeET.setText(Double.valueOf(storyData.latitude).toString());
-			longitudeET.setText(Double.valueOf(storyData.longitude).toString());
-			return true;
-		}
-		return false;
-	}
+    StoryData storyData;
+    try {
+      storyData = resolver.getStoryDataViaRowID(getUniqueKey());
+    }
+    catch (RemoteException e) {
+      Log.d(LOG_TAG, "" + e.getMessage());
+      e.printStackTrace();
+      return false;
+    }
 
-	public long getUniqueKey() {
-		return getArguments().getLong(rowIdentifyerTAG, 0);
-	}
+    if (storyData != null) {
+      Log.d(LOG_TAG, "setValuesToDefualt :" + storyData.toString());
+      // set the EditTexts to the current values
+      titleET.setText(String.valueOf(storyData.getTitle()).toString());
+      bodyET.setText(String.valueOf(storyData.getBody()).toString());
+      audioLinkET.setText("file:///" + String.valueOf(storyData.getAudioLink()).toString());
+      videoLinkET.setText(String.valueOf(storyData.getVideoLink()).toString());
+      imageNameET.setText(String.valueOf(storyData.getImageName()).toString());
+      imageMetaDataET.setText(String.valueOf(storyData.getImageLink()).toString());
+      tagsET.setText(String.valueOf(storyData.getTags()).toString());
+      storyTimeET.setText(StoryData.FORMAT.format(storyData.getStoryTime()));
+      latitudeET.setText(Double.valueOf(storyData.getLatitude()).toString());
+      longitudeET.setText(Double.valueOf(storyData.getLongitude()).toString());
+      return true;
+    }
+    return false;
+  }
+
+  public long getUniqueKey() {
+    return getArguments().getLong(ROW_IDENTIFIER_TAG, 0);
+  }
 
 }

@@ -64,264 +64,255 @@ import edu.vanderbilt.mooc.R;
  * @author Michael A. Walker
  * 
  */
-public class StoryActivityBase extends FragmentActivity implements
-		OnOpenWindowInterface {
+public class StoryActivityBase extends FragmentActivity implements OnOpenWindowInterface {
 
-	boolean promptOnBackPressed = false;
-	StoryListFragment fragment;
-	private static final String LOG_TAG = StoryActivityBase.class
-			.getCanonicalName();
-	boolean mDualPane;
+  boolean promptOnBackPressed = false;
+  StoryListFragment fragment;
+  private static final String LOG_TAG = StoryActivityBase.class.getCanonicalName();
+  boolean mDualPane;
 
-	@Override
-	/**
-	 * Handle when the back button is pressed. Overridden to require
-	 * confirmation of wanting to exit via back button. 
-	 * This functionality can easily be removed.
-	 */
-	public void onBackPressed() {
-		if (promptOnBackPressed == true) {
-			new AlertDialog.Builder(this)
-					.setIcon(android.R.drawable.ic_dialog_alert)
-					.setTitle("Closing Activity")
-					.setMessage("Are you sure you want to close this activity?")
-					.setPositiveButton("Yes",
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-									finish();
-								}
+  @Override
+  /**
+   * Handle when the back button is pressed. Overridden to require
+   * confirmation of wanting to exit via back button. 
+   * This functionality can easily be removed.
+   */
+  public void onBackPressed() {
+    if (promptOnBackPressed == true) {
+      new AlertDialog.Builder(this).setIcon(android.R.drawable.ic_dialog_alert).setTitle("Closing Activity")
+          .setMessage("Are you sure you want to close this activity?")
+          .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              finish();
+            }
 
-							}).setNegativeButton("No", null).show();
-		} else {
-			super.onBackPressed();
-		}
-	}
+          }).setNegativeButton("No", null).show();
+    }
+    else {
+      super.onBackPressed();
+    }
+  }
 
-	/**
-	 * Determine if the device this app is running on is a tablet or a phone.
-	 * 
-	 * <p>
-	 * phones generally have less than 600dp (this is the threshold we use, this
-	 * can be adjusted)
-	 * 
-	 * @return boolean truth
-	 */
-	private boolean determineDualPane() {
-		if (getResources().getBoolean(R.bool.isTablet) == true) {
-			mDualPane = true;
-			return true;
-		} else {
-			mDualPane = false;
-			return false;
-		}
-	}
+  /**
+   * Determine if the device this app is running on is a tablet or a phone.
+   * 
+   * <p>
+   * phones generally have less than 600dp (this is the threshold we use, this can be adjusted)
+   * 
+   * @return boolean truth
+   */
+  private boolean determineDualPane() {
+    if (getResources().getBoolean(R.bool.isTablet) == true) {
+      mDualPane = true;
+      return true;
+    }
+    else {
+      mDualPane = false;
+      return false;
+    }
+  }
 
-	/**
-	 * Logic required to open the appropriate View StoryData Fragment/Activity
-	 * combination to display properly on the phone or tablet.
-	 */
-	public void openViewStoryFragment(long index) {
-		Log.d(LOG_TAG, "openStoryViewFragment(" + index + ")");
-		if (determineDualPane()) {
+  /**
+   * Logic required to open the appropriate View StoryData Fragment/Activity combination to display properly on the
+   * phone or tablet.
+   */
+  public void openViewStoryFragment(long index) {
+    Log.d(LOG_TAG, "openStoryViewFragment(" + index + ")");
+    if (determineDualPane()) {
 
-			Fragment test = getSupportFragmentManager().findFragmentById(
-					R.id.details);
+      Fragment test = getSupportFragmentManager().findFragmentById(R.id.details);
 
-			// Log.d(LOG_TAG, "open view class:" + test.getClass());
-			FragmentTransaction ft = getSupportFragmentManager()
-					.beginTransaction();
-			if (test != null && test.getClass() != StoryViewFragment.class) {
-				StoryViewFragment details = StoryViewFragment
-						.newInstance(index);
+      // Log.d(LOG_TAG, "open view class:" + test.getClass());
+      FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+      if (test != null && test.getClass() != StoryViewFragment.class) {
+        StoryViewFragment details = StoryViewFragment.newInstance(index);
 
-				// Execute a transaction, replacing any existing
-				// fragment with this one inside the frame.
-				ft.replace(R.id.details, details);
+        // Execute a transaction, replacing any existing
+        // fragment with this one inside the frame.
+        ft.replace(R.id.details, details);
 
-			} else {
-				// Check what fragment is shown, replace if needed.
-				StoryViewFragment details = (StoryViewFragment) getSupportFragmentManager()
-						.findFragmentById(R.id.details);
-				if (details == null || details.getUniqueKey() != index) {
-					// Make new fragment to show this selection.
-					details = StoryViewFragment.newInstance(index);
+      }
+      else {
+        // Check what fragment is shown, replace if needed.
+        StoryViewFragment details = (StoryViewFragment) getSupportFragmentManager().findFragmentById(R.id.details);
+        if (details == null || details.getUniqueKey() != index) {
+          // Make new fragment to show this selection.
+          details = StoryViewFragment.newInstance(index);
 
-				}
-				// Execute a transaction, replacing any existing
-				// fragment with this one inside the frame.
+        }
+        // Execute a transaction, replacing any existing
+        // fragment with this one inside the frame.
 
-				ft.replace(R.id.details, details);
+        ft.replace(R.id.details, details);
 
-			}
-			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-			ft.commit();
+      }
+      ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+      ft.commit();
 
-		} else {
-			// Otherwise we need to launch a new activity to display
-			// the dialog fragment with selected text.
-			Intent intent = newStoryViewIntent(this, index);
-			startActivity(intent);
-		}
-	}
+    }
+    else {
+      // Otherwise we need to launch a new activity to display
+      // the dialog fragment with selected text.
+      Intent intent = newStoryViewIntent(this, index);
+      startActivity(intent);
+    }
+  }
 
-	/**
-	 * Logic required to open the appropriate Edit StoryData Fragment/Activity
-	 * combination to display properly on the phone or tablet.
-	 */
-	public void openEditStoryFragment(final long index) {
-		Log.d(LOG_TAG, "openEditStoryFragment(" + index + ")");
-		if (determineDualPane()) {
+  /**
+   * Logic required to open the appropriate Edit StoryData Fragment/Activity combination to display properly on the
+   * phone or tablet.
+   */
+  public void openEditStoryFragment(final long index) {
+    Log.d(LOG_TAG, "openEditStoryFragment(" + index + ")");
+    if (determineDualPane()) {
 
-			Fragment test = getSupportFragmentManager().findFragmentById(
-					R.id.details);
+      Fragment test = getSupportFragmentManager().findFragmentById(R.id.details);
 
-			// Log.d(LOG_TAG, "open view class:" + test.getClass());
-			FragmentTransaction ft = getSupportFragmentManager()
-					.beginTransaction();
-			if (test != null && test.getClass() != EditStoryFragment.class) {
-				EditStoryFragment editor = EditStoryFragment.newInstance(index);
+      // Log.d(LOG_TAG, "open view class:" + test.getClass());
+      FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+      if (test != null && test.getClass() != EditStoryFragment.class) {
+        EditStoryFragment editor = EditStoryFragment.newInstance(index);
 
-				// Execute a transaction, replacing any existing
-				// fragment with this one inside the frame.
+        // Execute a transaction, replacing any existing
+        // fragment with this one inside the frame.
 
-				ft.replace(R.id.details, editor);
+        ft.replace(R.id.details, editor);
 
-			} else {
-				// Check what fragment is shown, replace if needed.
-				EditStoryFragment editor = (EditStoryFragment) getSupportFragmentManager()
-						.findFragmentById(R.id.details);
-				if (editor == null || editor.getUniqueKey() != index) {
-					// Make new fragment to show this selection.
-					editor = EditStoryFragment.newInstance(index);
+      }
+      else {
+        // Check what fragment is shown, replace if needed.
+        EditStoryFragment editor = (EditStoryFragment) getSupportFragmentManager().findFragmentById(R.id.details);
+        if (editor == null || editor.getUniqueKey() != index) {
+          // Make new fragment to show this selection.
+          editor = EditStoryFragment.newInstance(index);
 
-				}
-				// Execute a transaction, replacing any existing
-				// fragment with this one inside the frame.
+        }
+        // Execute a transaction, replacing any existing
+        // fragment with this one inside the frame.
 
-				ft.replace(R.id.details, editor);
+        ft.replace(R.id.details, editor);
 
-			}
-			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-			ft.commit();
+      }
+      ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+      ft.commit();
 
-		} else {
-			// Otherwise we need to launch a new activity to display
-			// the dialog fragment with selected text.
-			Intent intent = newEditStoryIntent(this, index);
-			startActivity(intent);
-		}
-	}
+    }
+    else {
+      // Otherwise we need to launch a new activity to display
+      // the dialog fragment with selected text.
+      Intent intent = newEditStoryIntent(this, index);
+      startActivity(intent);
+    }
+  }
 
-	/**
-	 * Logic required to open the appropriate Create StoryData Fragment/Activity
-	 * combination to display properly on the phone or tablet.
-	 */
-	public void openCreateStoryFragment() {
-		Log.d(LOG_TAG, "openCreateStoryFragment");
-		if (determineDualPane()) {
+  /**
+   * Logic required to open the appropriate Create StoryData Fragment/Activity combination to display properly on the
+   * phone or tablet.
+   */
+  public void openCreateStoryFragment() {
+    Log.d(LOG_TAG, "openCreateStoryFragment");
+    if (determineDualPane()) {
 
-			Fragment test = getSupportFragmentManager().findFragmentById(
-					R.id.details);
+      Fragment test = getSupportFragmentManager().findFragmentById(R.id.details);
 
-			// Log.d(LOG_TAG, "open view class:" + test.getClass());
-			FragmentTransaction ft = getSupportFragmentManager()
-					.beginTransaction();
-			if (test != null && test.getClass() != CreateStoryFragment.class) {
-				CreateStoryFragment details = CreateStoryFragment.newInstance();
+      // Log.d(LOG_TAG, "open view class:" + test.getClass());
+      FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+      if (test != null && test.getClass() != CreateStoryFragment.class) {
+        CreateStoryFragment details = CreateStoryFragment.newInstance();
 
-				// Execute a transaction, replacing any existing
-				// fragment with this one inside the frame.
+        // Execute a transaction, replacing any existing
+        // fragment with this one inside the frame.
 
-				ft.replace(R.id.details, details);
+        ft.replace(R.id.details, details);
 
-			} else {
-				// Check what fragment is shown, replace if needed.
-				CreateStoryFragment details = (CreateStoryFragment) getSupportFragmentManager()
-						.findFragmentById(R.id.details);
-				if (details == null) {
-					// Make new fragment to show this selection.
-					details = CreateStoryFragment.newInstance();
+      }
+      else {
+        // Check what fragment is shown, replace if needed.
+        CreateStoryFragment details = (CreateStoryFragment) getSupportFragmentManager().findFragmentById(R.id.details);
+        if (details == null) {
+          // Make new fragment to show this selection.
+          details = CreateStoryFragment.newInstance();
 
-				}
-				// Execute a transaction, replacing any existing
-				// fragment with this one inside the frame.
+        }
+        // Execute a transaction, replacing any existing
+        // fragment with this one inside the frame.
 
-				ft.replace(R.id.details, details);
+        ft.replace(R.id.details, details);
 
-			}
-			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-			ft.commit();
+      }
+      ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+      ft.commit();
 
-		} else {
-			// Otherwise we need to launch a new activity to display
-			// the dialog fragment with selected text.
-			Intent intent = newCreateStoryIntent(this);
-			startActivity(intent);
-		}
-	}
+    }
+    else {
+      // Otherwise we need to launch a new activity to display
+      // the dialog fragment with selected text.
+      Intent intent = newCreateStoryIntent(this);
+      startActivity(intent);
+    }
+  }
 
-	@Override
-	public void openListStoryFragment() {
-		Log.d(LOG_TAG, "openCreateStoryFragment");
-		if (determineDualPane()) {
-			// already displayed
-			Fragment test = getSupportFragmentManager().findFragmentByTag(
-					"imageFragmentTag");
-			if (test != null) {
-				StoryListFragment t = (StoryListFragment) test;
-				t.updateStoryData();
-			}
+  @Override
+  public void openListStoryFragment() {
+    Log.d(LOG_TAG, "openCreateStoryFragment");
+    if (determineDualPane()) {
+      // already displayed
+      Fragment test = getSupportFragmentManager().findFragmentByTag("imageFragmentTag");
+      if (test != null) {
+        StoryListFragment t = (StoryListFragment) test;
+        t.updateStoryData();
+      }
 
-		} else {
-			// Otherwise we need to launch a new activity to display
-			// the dialog fragment with selected text.
-			Intent intent = newListStoryIntent(this);
-			startActivity(intent);
-		}
-	}
+    }
+    else {
+      // Otherwise we need to launch a new activity to display
+      // the dialog fragment with selected text.
+      Intent intent = newListStoryIntent(this);
+      startActivity(intent);
+    }
+  }
 
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (determineDualPane()) {
-			getSupportFragmentManager().findFragmentById(R.id.details)
-					.onActivityResult(requestCode, resultCode, data);
-		} else {
-			getSupportFragmentManager().findFragmentById(android.R.id.content)
-					.onActivityResult(requestCode, resultCode, data);
-		}
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if (determineDualPane()) {
+      getSupportFragmentManager().findFragmentById(R.id.details).onActivityResult(requestCode, resultCode, data);
+    }
+    else {
+      getSupportFragmentManager().findFragmentById(android.R.id.content)
+          .onActivityResult(requestCode, resultCode, data);
+    }
 
-	}
+  }
 
-	/*************************************************************************/
-	/*
-	 * Create Intents for Intents
-	 */
-	/*************************************************************************/
+  /*************************************************************************/
+  /*
+   * Create Intents for Intents
+   */
+  /*************************************************************************/
 
-	public static Intent newStoryViewIntent(Activity activity, long index) {
-		Intent intent = new Intent();
-		intent.setClass(activity, ViewStoryActivity.class);
-		intent.putExtra(StoryViewFragment.rowIdentifyerTAG, index);
-		return intent;
-	}
+  public static Intent newStoryViewIntent(Activity activity, long index) {
+    Intent intent = new Intent();
+    intent.setClass(activity, ViewStoryActivity.class);
+    intent.putExtra(StoryViewFragment.ROW_IDENTIFIER_TAG, index);
+    return intent;
+  }
 
-	public static Intent newEditStoryIntent(Activity activity, long index) {
-		Intent intent = new Intent();
-		intent.setClass(activity, EditStoryActivity.class);
-		intent.putExtra(EditStoryFragment.rowIdentifyerTAG, index);
-		return intent;
-	}
+  public static Intent newEditStoryIntent(Activity activity, long index) {
+    Intent intent = new Intent();
+    intent.setClass(activity, EditStoryActivity.class);
+    intent.putExtra(EditStoryFragment.ROW_IDENTIFIER_TAG, index);
+    return intent;
+  }
 
-	public static Intent newListStoryIntent(Activity activity) {
-		Intent intent = new Intent();
-		intent.setClass(activity, StoryListActivity.class);
-		return intent;
-	}
+  public static Intent newListStoryIntent(Activity activity) {
+    Intent intent = new Intent();
+    intent.setClass(activity, StoryListActivity.class);
+    return intent;
+  }
 
-	public static Intent newCreateStoryIntent(Activity activity) {
-		Intent intent = new Intent();
-		intent.setClass(activity, CreateStoryActivity.class);
-		return intent;
-	}
+  public static Intent newCreateStoryIntent(Activity activity) {
+    Intent intent = new Intent();
+    intent.setClass(activity, CreateStoryActivity.class);
+    return intent;
+  }
 }

@@ -78,27 +78,26 @@ public class StoryViewFragment extends Fragment {
   private static final String LOG_TAG = StoryViewFragment.class.getCanonicalName();
 
   private MoocResolver resolver;
-  public final static String rowIdentifyerTAG = "index";
+  final static String ROW_IDENTIFIER_TAG = "index";
 
   private OnOpenWindowInterface mOpener;
 
   private StoryData storyData;
 
-  TextView titleTV;
-  TextView bodyTV;
-  Button audioButton;
-  VideoView videoLinkView;
-  TextView imageNameTV;
-  ImageView imageMetaDataView;
-  TextView storyTimeTV;
-  TextView latitudeTV;
-  TextView longitudeTV;
+  private TextView titleTV;
+  private TextView bodyTV;
+  private Button audioButton;
+  private VideoView videoLinkView;
+  private TextView imageNameTV;
+  private ImageView imageMetaDataView;
+  private TextView storyTimeTV;
+  private TextView latitudeTV;
+  private TextView longitudeTV;
 
-  // buttons for edit and delete
-  Button editButton;
-  Button deleteButton;
+  private Button editButton;
+  private Button deleteButton;
 
-  OnClickListener myOnClickListener = new OnClickListener() {
+  private OnClickListener myOnClickListener = new OnClickListener() {
     @Override
     public void onClick(View view) {
 
@@ -120,7 +119,7 @@ public class StoryViewFragment extends Fragment {
 
     // Supply index input as an argument.
     Bundle args = new Bundle();
-    args.putLong(rowIdentifyerTAG, index);
+    args.putLong(ROW_IDENTIFIER_TAG, index);
     f.setArguments(args);
 
     return f;
@@ -172,12 +171,12 @@ public class StoryViewFragment extends Fragment {
     latitudeTV = (TextView) getView().findViewById(R.id.story_view_value_latitude);
     longitudeTV = (TextView) getView().findViewById(R.id.story_view_value_longitude);
 
-    titleTV.setText("" + "");
-    bodyTV.setText("" + "");
-    imageNameTV.setText("" + "");
-    storyTimeTV.setText("" + 0);
-    latitudeTV.setText("" + 0);
-    longitudeTV.setText("" + 0);
+    titleTV.setText("");
+    bodyTV.setText("");
+    imageNameTV.setText("");
+    storyTimeTV.setText("0");
+    latitudeTV.setText("0");
+    longitudeTV.setText("0");
 
     editButton = (Button) getView().findViewById(R.id.button_story_view_to_edit);
     deleteButton = (Button) getView().findViewById(R.id.button_story_view_to_delete);
@@ -195,60 +194,62 @@ public class StoryViewFragment extends Fragment {
     }
   }
 
-  public void setUiToStoryData(long getUniqueKey) throws RemoteException {
-    Log.d(LOG_TAG, "setUiToStoryData");
+  private void setUiToStoryData(long getUniqueKey) throws RemoteException {
     storyData = resolver.getStoryDataViaRowID(getUniqueKey);
     if (storyData == null) {
       getView().setVisibility(View.GONE);
+      return;
     }
-    else { // else it just displays empty screen
-      Log.d(LOG_TAG, "setUiToStoryData + storyData:" + storyData.toString());
-      titleTV.setText(String.valueOf(storyData.title).toString());
-      bodyTV.setText(String.valueOf(storyData.body).toString());
 
-      String audioLinkPath = String.valueOf(storyData.audioLink);
+    Log.d(LOG_TAG, "In setUiToStoryData method: " + storyData);
+    titleTV.setText(storyData.getTitle());
+    bodyTV.setText(storyData.getBody());
 
+    String audioLinkPath = storyData.getAudioLink();
+
+    if (audioLinkPath.isEmpty()) {
+      audioButton.setEnabled(false);
+    }
+    else {
       final Ringtone ringtone =
           RingtoneManager.getRingtone(getActivity().getApplicationContext(), Uri.parse(audioLinkPath));
-
       audioButton.setOnClickListener(new OnClickListener() {
         @Override
         public void onClick(View v) {
           ringtone.play();
         }
       });
+    }
 
-      // Display the video
+    // Set up video playback using the MediaController android widget
+    // and the video view already set up in the layout file.
 
-      String videoLinkPath = String.valueOf(storyData.videoLink);
-
-      // Set up video playback using the MediaController android widget
-      // and the video view already set up in the layout file.
-
+    String videoLinkPath = storyData.getVideoLink();
+    if (!videoLinkPath.isEmpty()) {
       MediaController controller = new MediaController(getActivity());
       controller.setAnchorView(videoLinkView);
       videoLinkView.setMediaController(controller);
       videoLinkView.setVideoURI(Uri.parse(videoLinkPath));
       videoLinkView.start();
-
-      // Display the image data
-
-      imageNameTV.setText(String.valueOf(storyData.imageName).toString());
-
-      String imageMetaDataPath = String.valueOf(storyData.imageLink).toString();
-      imageMetaDataView.setImageURI(Uri.parse(imageMetaDataPath));
-
-      Long time = Long.valueOf(storyData.storyTime);
-      storyTimeTV.setText(StoryData.FORMAT.format(time));
-
-      latitudeTV.setText(Double.valueOf(storyData.latitude).toString());
-      longitudeTV.setText(Double.valueOf(storyData.longitude).toString());
     }
+
+    // Display the image data
+
+    imageNameTV.setText(storyData.getImageName());
+
+    String imageMetaDataPath = storyData.getImageLink();
+    imageMetaDataView.setImageURI(Uri.parse(imageMetaDataPath));
+
+    Long time = Long.valueOf(storyData.getStoryTime());
+    storyTimeTV.setText(StoryData.FORMAT.format(time));
+
+    latitudeTV.setText(String.valueOf(storyData.getLatitude()));
+    longitudeTV.setText(String.valueOf(storyData.getLongitude()));
   }
 
   // action to be performed when the edit button is pressed
   private void editButtonPressed() {
-    mOpener.openEditStoryFragment(storyData.KEY_ID);
+    mOpener.openEditStoryFragment(storyData.getKeyId());
   }
 
   // action to be performed when the delete button is pressed
@@ -263,7 +264,7 @@ public class StoryViewFragment extends Fragment {
           @Override
           public void onClick(DialogInterface dialog, int which) {
             try {
-              resolver.deleteAllStoryWithRowID(storyData.KEY_ID);
+              resolver.deleteAllStoryWithRowID(storyData.getKeyId());
             }
             catch (RemoteException e) {
               Log.e(LOG_TAG, "RemoteException Caught => " + e.getMessage());
@@ -281,8 +282,8 @@ public class StoryViewFragment extends Fragment {
         }).setNegativeButton(R.string.story_view_deletion_dialog_no, null).show();
   }
 
-  public long getUniqueKey() {
-    return getArguments().getLong(rowIdentifyerTAG, 0);
+  long getUniqueKey() {
+    return getArguments().getLong(ROW_IDENTIFIER_TAG, 0);
   }
 
   @Override

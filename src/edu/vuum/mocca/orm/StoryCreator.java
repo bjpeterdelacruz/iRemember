@@ -72,19 +72,19 @@ public class StoryCreator {
 	 */
 	public static ContentValues getCVfromStory(final StoryData data) {
 		ContentValues rValue = new ContentValues();
-		rValue.put(MoocSchema.Story.Cols.LOGIN_ID, data.loginId);
-		rValue.put(MoocSchema.Story.Cols.STORY_ID, data.storyId);
-		rValue.put(MoocSchema.Story.Cols.TITLE, data.title);
-		rValue.put(MoocSchema.Story.Cols.BODY, data.body);
-		rValue.put(MoocSchema.Story.Cols.AUDIO_LINK, data.audioLink);
-		rValue.put(MoocSchema.Story.Cols.VIDEO_LINK, data.videoLink);
-		rValue.put(MoocSchema.Story.Cols.IMAGE_NAME, data.imageName);
-		rValue.put(MoocSchema.Story.Cols.IMAGE_LINK, data.imageLink);
-		rValue.put(MoocSchema.Story.Cols.TAGS, data.tags);
-		rValue.put(MoocSchema.Story.Cols.CREATION_TIME, data.creationTime);
-		rValue.put(MoocSchema.Story.Cols.STORY_TIME, data.storyTime);
-		rValue.put(MoocSchema.Story.Cols.LATITUDE, data.latitude);
-		rValue.put(MoocSchema.Story.Cols.LONGITUDE, data.longitude);
+		rValue.put(MoocSchema.Story.Cols.LOGIN_ID, data.getLoginId());
+		rValue.put(MoocSchema.Story.Cols.STORY_ID, data.getStoryId());
+		rValue.put(MoocSchema.Story.Cols.TITLE, data.getTitle());
+		rValue.put(MoocSchema.Story.Cols.BODY, data.getBody());
+		rValue.put(MoocSchema.Story.Cols.AUDIO_LINK, data.getAudioLink());
+		rValue.put(MoocSchema.Story.Cols.VIDEO_LINK, data.getVideoLink());
+		rValue.put(MoocSchema.Story.Cols.IMAGE_NAME, data.getImageName());
+		rValue.put(MoocSchema.Story.Cols.IMAGE_LINK, data.getImageLink());
+		rValue.put(MoocSchema.Story.Cols.TAGS, data.getTags());
+		rValue.put(MoocSchema.Story.Cols.CREATION_TIME, data.getCreationTime());
+		rValue.put(MoocSchema.Story.Cols.STORY_TIME, data.getStoryTime());
+		rValue.put(MoocSchema.Story.Cols.LATITUDE, data.getLatitude());
+		rValue.put(MoocSchema.Story.Cols.LONGITUDE, data.getLongitude());
 		return rValue;
 	}
 

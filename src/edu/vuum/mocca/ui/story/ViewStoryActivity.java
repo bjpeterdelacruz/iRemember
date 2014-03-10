@@ -51,27 +51,24 @@ package edu.vuum.mocca.ui.story;
 import android.os.Bundle;
 
 /**
- * Fragments require a Container Activity, this is the one for the View
- * StoryData
+ * Fragments require a Container Activity, this is the one for the View StoryData
  * 
  */
 public class ViewStoryActivity extends StoryActivityBase {
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
 
-		if (savedInstanceState == null) {
-			// During initial setup, plug in the details fragment.
-			long index = getIntent().getExtras().getLong(
-					StoryViewFragment.rowIdentifyerTAG);
+    if (savedInstanceState == null) {
+      // During initial setup, plug in the details fragment.
+      long index = getIntent().getExtras().getLong(StoryViewFragment.ROW_IDENTIFIER_TAG);
 
-			StoryViewFragment details = StoryViewFragment.newInstance(index);
+      StoryViewFragment details = StoryViewFragment.newInstance(index);
 
-			details.setArguments(getIntent().getExtras());
+      details.setArguments(getIntent().getExtras());
 
-			getSupportFragmentManager().beginTransaction()
-					.add(android.R.id.content, details).commit();
-		}
-	}
+      getSupportFragmentManager().beginTransaction().add(android.R.id.content, details).commit();
+    }
+  }
 }

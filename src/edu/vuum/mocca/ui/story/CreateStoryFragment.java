@@ -106,6 +106,10 @@ public class CreateStoryFragment extends Fragment {
   private OnOpenWindowInterface mOpener;
   private MoocResolver resolver;
 
+  void setImagePath(Uri imagePath) {
+    this.imagePath = imagePath;
+  }
+
   public static CreateStoryFragment newInstance() {
     CreateStoryFragment f = new CreateStoryFragment();
     return f;
@@ -212,7 +216,7 @@ public class CreateStoryFragment extends Fragment {
         String audioLink = audioPath == null ? "" : audioPath;
         String videoLink = fileUri == null ? "" : fileUri.toString();
         String imageName = imageNameCreateable.toString();
-        String imageData = imagePathFinal == null ? "" : imagePathFinal.toString();
+        String imageData = imagePath == null ? "" : imagePath.toString();
         double latitude = loc == null ? 0 : loc.getLatitude();
         double longitude = loc == null ? 0 : loc.getLongitude();
         long storyTime = date.getTime();
@@ -246,8 +250,6 @@ public class CreateStoryFragment extends Fragment {
 
   }
 
-  Uri imagePathFinal = null;
-
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
     Log.d(LOG_TAG, "CreateStoryFragment.onActivityResult called. requestCode: " + requestCode + " resultCode:" + resultCode
@@ -255,8 +257,10 @@ public class CreateStoryFragment extends Fragment {
     if (requestCode == CreateStoryActivity.CAMERA_PIC_REQUEST) {
       if (resultCode == CreateStoryActivity.RESULT_OK) {
         // Image captured and saved to fileUri specified in the Intent
-        imagePathFinal = imagePath;
-        imageLocation.setText(imagePathFinal.toString());
+        if (data != null) {
+          imagePath = data.getData();
+        }
+        imageLocation.setText(imagePath.toString());
       }
       else if (resultCode == CreateStoryActivity.RESULT_CANCELED) {
         // User cancelled the image capture
@@ -297,8 +301,8 @@ public class CreateStoryFragment extends Fragment {
   void setLocation(Location location) {
     Log.d(LOG_TAG, "setLocation = " + location);
     loc = location;
-    latitudeValue.setText(String.valueOf(loc.getLatitude()));
-    longitudeValue.setText(String.valueOf(loc.getLongitude()));
+    latitudeValue.setText(String.format("%.1f", loc.getLatitude()));
+    longitudeValue.setText(String.format("%.1f", loc.getLongitude()));
   }
 
   static void setStringDate(int year, int monthOfYear, int dayOfMonth) {

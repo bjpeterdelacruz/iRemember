@@ -259,8 +259,8 @@ public class StoryListFragment extends ListFragment {
 		Log.d(LOG_TAG, "onListItemClick");
 		Log.d(LOG_TAG,
 				"position: " + position + "id = "
-						+ (StoryData.get(position)).KEY_ID);
-		mOpener.openViewStoryFragment((StoryData.get(position)).KEY_ID);
+						+ (StoryData.get(position)).getKeyId());
+		mOpener.openViewStoryFragment((StoryData.get(position)).getKeyId());
 	}
 
 }

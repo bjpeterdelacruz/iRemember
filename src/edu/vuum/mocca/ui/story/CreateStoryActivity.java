@@ -204,7 +204,9 @@ public class CreateStoryActivity extends StoryActivityBase {
 
   private void launchCameraIntent() {
     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-    intent.putExtra(MediaStore.EXTRA_OUTPUT, getOutputMediaFileUri(MediaType.MEDIA_TYPE_IMAGE));
+    Uri imagePath = getOutputMediaFileUri(MediaType.MEDIA_TYPE_IMAGE);
+    fragment.setImagePath(imagePath);
+    intent.putExtra(MediaStore.EXTRA_OUTPUT, imagePath);
     startActivityForResult(intent, CAMERA_PIC_REQUEST);
   }
 
