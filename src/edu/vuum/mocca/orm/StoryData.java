@@ -128,7 +128,7 @@ public class StoryData implements Parcelable {
    * Constructor WITH _id, this creates a new object for use when pulling already existing object's information from the
    * ContentProvider
    * 
-   * @param KEY_ID
+   * @param keyId
    * @param loginId
    * @param storyId
    * @param title
@@ -143,10 +143,10 @@ public class StoryData implements Parcelable {
    * @param latitude
    * @param longitude
    */
-  public StoryData(long KEY_ID, long loginId, long storyId, String title, String body, String audioLink,
+  public StoryData(long keyId, long loginId, long storyId, String title, String body, String audioLink,
       String videoLink, String imageName, String imageLink, String tags, long creationTime, long storyTime,
       double latitude, double longitude) {
-    this.keyId = KEY_ID;
+    this.keyId = keyId;
     this.loginId = loginId;
     this.storyId = storyId;
     this.title = title;

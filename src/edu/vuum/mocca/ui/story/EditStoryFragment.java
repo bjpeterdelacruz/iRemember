@@ -72,13 +72,13 @@ import edu.vuum.mocca.orm.StoryData;
 public class EditStoryFragment extends Fragment {
 
   private final static String LOG_TAG = EditStoryFragment.class.getCanonicalName();
-  // variable for passing around row index
+  // Variable for passing around row index
   final static String ROW_IDENTIFIER_TAG = "index";
   private EditText titleET;
   private EditText bodyET;
   private TextView audioLinkET;
   private TextView videoLinkET;
-  private EditText imageNameET;
+  private EditText imageTitleET;
   private TextView imageMetaDataET;
   private EditText tagsET;
   private TextView storyTimeET;
@@ -90,12 +90,11 @@ public class EditStoryFragment extends Fragment {
   private Button resetButton;
   private Button cancelButton;
 
-  // parent Activity
+  // Parent activity
   private OnOpenWindowInterface mOpener;
-  // custom ContentResolver wrapper.
+  // Custom ContentResolver wrapper.
   private MoocResolver resolver;
 
-  // listener to button presses.
   // TODO determine/label pattern.
   private OnClickListener myOnClickListener = new OnClickListener() {
     @Override
@@ -153,28 +152,26 @@ public class EditStoryFragment extends Fragment {
   @Override
   public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
-    // Get the Buttons
+
     saveButton = (Button) getView().findViewById(R.id.story_edit_button_save);
     resetButton = (Button) getView().findViewById(R.id.story_edit_button_reset);
     cancelButton = (Button) getView().findViewById(R.id.story_edit_button_cancel);
 
-    // Get the EditTexts
     titleET = (EditText) getView().findViewById(R.id.story_edit_title);
     bodyET = (EditText) getView().findViewById(R.id.story_edit_body);
     audioLinkET = (TextView) getView().findViewById(R.id.story_edit_audio_link);
     videoLinkET = (TextView) getView().findViewById(R.id.story_edit_video_link);
-    imageNameET = (EditText) getView().findViewById(R.id.story_edit_image_name);
+    imageTitleET = (EditText) getView().findViewById(R.id.story_edit_image_title);
     imageMetaDataET = (TextView) getView().findViewById(R.id.story_edit_image_meta_data);
     tagsET = (EditText) getView().findViewById(R.id.story_edit_tags);
     storyTimeET = (TextView) getView().findViewById(R.id.story_edit_story_time);
     latitudeET = (EditText) getView().findViewById(R.id.story_edit_latitude);
     longitudeET = (EditText) getView().findViewById(R.id.story_edit_longitude);
 
-    // setup the onClick callback methods
     saveButton.setOnClickListener(myOnClickListener);
     resetButton.setOnClickListener(myOnClickListener);
     cancelButton.setOnClickListener(myOnClickListener);
-    // set the EditTexts to this Story's Values
+
     setValuesToDefault();
   }
 
@@ -185,23 +182,21 @@ public class EditStoryFragment extends Fragment {
     return view;
   }
 
-  public void doResetButtonClick() {
+  private void doResetButtonClick() {
     setValuesToDefault();
   }
 
-  public void doSaveButtonClick() {
+  private void doSaveButtonClick() {
     Toast.makeText(getActivity(), "Updated.", Toast.LENGTH_SHORT).show();
     StoryData location = makeStoryDataFromUI();
-    if (location != null) {
-      try {
-        resolver.updateStoryWithID(location);
-      }
-      catch (RemoteException e) {
-        e.printStackTrace();
-        return;
-      }
+    if (location == null) {
+      return;
     }
-    else {
+    try {
+      resolver.updateStoryWithID(location);
+    }
+    catch (RemoteException e) {
+      e.printStackTrace();
       return;
     }
     if (getResources().getBoolean(R.bool.isTablet) == true) {
@@ -212,20 +207,19 @@ public class EditStoryFragment extends Fragment {
     }
   }
 
-  public StoryData makeStoryDataFromUI() {
+  private StoryData makeStoryDataFromUI() {
 
     Editable titleEditable = titleET.getText();
     Editable bodyEditable = bodyET.getText();
     String audioLinkEditable = (String) audioLinkET.getText();
     String videoLinkEditable = (String) videoLinkET.getText();
-    Editable imageNameEditable = imageNameET.getText();
+    Editable imageNameEditable = imageTitleET.getText();
     String imageMetaDataEditable = (String) imageMetaDataET.getText();
     Editable tagsEditable = tagsET.getText();
     String storyTimeEditable = (String) storyTimeET.getText();
     Editable latitudeEditable = latitudeET.getText();
     Editable longitudeEditable = longitudeET.getText();
 
-    // Try to parse the date into long format
     try {
       date = StoryData.FORMAT.parse(storyTimeEditable.toString());
     }
@@ -236,39 +230,26 @@ public class EditStoryFragment extends Fragment {
 
     long loginId = 0;
     long storyId = 0;
-    String title = "";
-    String body = "";
-    String audioLink = "";
-    String videoLink = "";
-    String imageName = "";
-    String imageMetaData = "";
-    String tags = "";
     long creationTime = 0;
-    long storyTime = 0;
-    double latitude = 0;
-    double longitude = 0;
 
-    // pull values from Editables
-    title = String.valueOf(titleEditable.toString());
-    body = String.valueOf(bodyEditable.toString());
-    audioLink = String.valueOf(audioLinkEditable.toString());
-    videoLink = String.valueOf(videoLinkEditable.toString());
-    imageName = String.valueOf(imageNameEditable.toString());
-    imageMetaData = String.valueOf(imageMetaDataEditable.toString());
-    tags = String.valueOf(tagsEditable.toString());
-    storyTime = date.getTime();
-    latitude = Double.valueOf(latitudeEditable.toString());
-    longitude = Double.valueOf(longitudeEditable.toString());
+    String title = titleEditable.toString();
+    String body = bodyEditable.toString();
+    String audioLink = audioLinkEditable.toString();
+    String videoLink = videoLinkEditable.toString();
+    String imageName = imageNameEditable.toString();
+    String imageMetaData = imageMetaDataEditable.toString();
+    String tags = tagsEditable.toString();
+    long storyTime = date.getTime();
+    double latitude = Double.valueOf(latitudeEditable.toString());
+    double longitude = Double.valueOf(longitudeEditable.toString());
 
-    // return new StoryData object with
     return new StoryData(getUniqueKey(), loginId, storyId, title, body, audioLink, videoLink, imageName, imageMetaData,
         tags, creationTime, storyTime, latitude, longitude);
 
   }
 
-  public void doCancelButtonClick() {
+  private void doCancelButtonClick() {
     if (getResources().getBoolean(R.bool.isTablet) == true) {
-      // put
       mOpener.openViewStoryFragment(getUniqueKey());
     }
     else {
@@ -277,34 +258,34 @@ public class EditStoryFragment extends Fragment {
 
   }
 
-  public boolean setValuesToDefault() {
+  private boolean setValuesToDefault() {
 
     StoryData storyData;
     try {
       storyData = resolver.getStoryDataViaRowID(getUniqueKey());
     }
     catch (RemoteException e) {
-      Log.d(LOG_TAG, "" + e.getMessage());
+      Log.d(LOG_TAG, e.getMessage());
       e.printStackTrace();
       return false;
     }
 
-    if (storyData != null) {
-      Log.d(LOG_TAG, "setValuesToDefualt :" + storyData.toString());
-      // set the EditTexts to the current values
-      titleET.setText(String.valueOf(storyData.getTitle()).toString());
-      bodyET.setText(String.valueOf(storyData.getBody()).toString());
-      audioLinkET.setText("file:///" + String.valueOf(storyData.getAudioLink()).toString());
-      videoLinkET.setText(String.valueOf(storyData.getVideoLink()).toString());
-      imageNameET.setText(String.valueOf(storyData.getImageName()).toString());
-      imageMetaDataET.setText(String.valueOf(storyData.getImageLink()).toString());
-      tagsET.setText(String.valueOf(storyData.getTags()).toString());
-      storyTimeET.setText(StoryData.FORMAT.format(storyData.getStoryTime()));
-      latitudeET.setText(Double.valueOf(storyData.getLatitude()).toString());
-      longitudeET.setText(Double.valueOf(storyData.getLongitude()).toString());
-      return true;
+    if (storyData == null) {
+      return false;
     }
-    return false;
+
+    Log.d(LOG_TAG, "setValuesToDefault: " + storyData);
+    titleET.setText(storyData.getTitle());
+    bodyET.setText(storyData.getBody());
+    audioLinkET.setText("file:///" + String.valueOf(storyData.getAudioLink()).toString());
+    videoLinkET.setText(storyData.getVideoLink());
+    imageTitleET.setText(storyData.getImageName());
+    imageMetaDataET.setText(storyData.getImageLink());
+    tagsET.setText(storyData.getTags());
+    storyTimeET.setText(StoryData.FORMAT.format(storyData.getStoryTime()));
+    latitudeET.setText(String.valueOf(storyData.getLatitude()));
+    longitudeET.setText(String.valueOf(storyData.getLongitude()));
+    return true;
   }
 
   public long getUniqueKey() {

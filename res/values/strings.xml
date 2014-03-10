@@ -138,8 +138,8 @@ University of Maryland to appear in their names.
     <string name="story_create_label_story_time">storyTime:</string>
     <string name="story_create_label_latitude">latitude:</string>
     <string name="story_create_label_longitude">longitude:</string>
-    <string name="story_create_title_hint_value">Story title.</string>
-    <string name="story_create_body_hint_value">Information about this story.</string>
+    <string name="story_create_title_hint_value">Enter a story title.</string>
+    <string name="story_create_body_hint_value">Enter information about this story.</string>
     <string name="story_create_audio_link_default_value"></string>
     <string name="story_create_video_link_default_value"></string>
     <string name="story_create_image_name_default_value"></string>
@@ -149,16 +149,16 @@ University of Maryland to appear in their names.
     <string name="story_create_story_time_default_value">0</string>
     <string name="story_create_latitude_default_value">0.0</string>
     <string name="story_create_longitude_default_value">0.0</string>
-    <string name="story_create_audio_file_name_hint_value">Audio file name (optional).</string>
+    <string name="story_create_audio_file_name_hint_value">Enter an audio file name (optional).</string>
     <string name="story_create_add_audio_button_text_value">Add Audio</string>
-    <string name="story_create_video_file_name_hint_value">Video file name (optional).</string>
+    <string name="story_create_video_file_name_hint_value">Enter a video file name (optional).</string>
     <string name="story_create_add_video_button_text_value">Add Video</string>
-    <string name="story_create_image_name_hint_value">Photo file name.</string>
+    <string name="story_create_image_name_hint_value">Enter a photo file name.</string>
     <string name="story_create_add_image_button_text_value">Add Photo</string>
     <string name="story_create_set_time_text_value">Set Time</string>
     <string name="story_create_add_location_button_text_value">Get Location</string>
-    <string name="story_create_latitude_text_value">Lat</string>
-    <string name="story_create_longitude_text_value">Lng</string>
+    <string name="story_create_latitude_text_value">Latitude</string>
+    <string name="story_create_longitude_text_value">Longitude</string>
     <string name="story_create_button_label_clear">Clear</string>
     <string name="story_create_button_label_cancel">Cancel</string>
     <string name="story_create_button_label_create">Create</string>
@@ -185,17 +185,17 @@ University of Maryland to appear in their names.
 
     <!-- story Edit Fragment Strings : Labels -->
 
-    <string name="story_edit_label_login_id">LoginId</string>
-    <string name="story_edit_label_story_id">StoryId</string>
+    <string name="story_edit_label_login_id">Login ID</string>
+    <string name="story_edit_label_story_id">Story ID</string>
     <string name="story_edit_label_title">Title</string>
     <string name="story_edit_label_body">Body</string>
-    <string name="story_edit_label_audio_link">AudioLink</string>
-    <string name="story_edit_label_video_link">VideoLink</string>
-    <string name="story_edit_label_image_name">ImageName</string>
-    <string name="story_edit_label_image_meta_data">ImageMetaData</string>
+    <string name="story_edit_label_audio_link">Audio File</string>
+    <string name="story_edit_label_video_link">Video File</string>
+    <string name="story_edit_label_image_title">Image Title</string>
+    <string name="story_edit_label_image_meta_data">Image File Name</string>
     <string name="story_edit_label_tags">Tags</string>
-    <string name="story_edit_label_creation_time">CreationTime</string>
-    <string name="story_edit_label_story_time">StoryTime</string>
+    <string name="story_edit_label_creation_time">Creation Time</string>
+    <string name="story_edit_label_story_time">Story Time</string>
     <string name="story_edit_label_latitude">Latitude</string>
     <string name="story_edit_label_longitude">Longitude</string>
 
@@ -207,7 +207,7 @@ University of Maryland to appear in their names.
     <string name="story_edit_default_value_body"></string>
     <string name="story_edit_default_value_audio_link"></string>
     <string name="story_edit_default_value_video_link"></string>
-    <string name="story_edit_default_value_image_name"></string>
+    <string name="story_edit_default_value_image_title"></string>
     <string name="story_edit_default_value_image_meta_data"></string>
     <string name="story_edit_default_value_tags"></string>
     <string name="story_edit_default_value_creation_time"></string>
