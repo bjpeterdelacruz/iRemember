@@ -1,0 +1,21 @@
+# Ignore these files:
+
+.metadata/*
+.settings/*
+bin/*
+gen/*
+build/*
+libs/*
+*.log
+*.lck
+*.txt
+.classpath
+.DS_Store
+.gitattributes
+.project
+Thumbs.db
+*.~*
+*.*~
+
+# Except these files:
+

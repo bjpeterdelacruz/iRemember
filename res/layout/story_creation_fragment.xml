@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_weight="1"
+    android:scrollbars="none" >
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffff"
+        android:shrinkColumns="*"
+        android:stretchColumns="*" >
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal" >
+
+            <EditText
+                android:id="@+id/story_create_value_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_span="3"
+                android:hint="@string/story_create_title_hint_value"
+                android:inputType="text" />
+        </TableRow>
+
+        <TableRow>
+
+            <EditText
+                android:id="@+id/story_create_value_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_span="3"
+                android:hint="@string/story_create_body_hint_value"
+                android:inputType="text" />
+        </TableRow>
+
+        <TableRow>
+
+            <EditText
+                android:id="@+id/story_audio_file_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_span="2"
+                android:hint="@string/story_create_audio_file_name_hint_value"
+                android:inputType="text" />
+
+            <Button
+                android:id="@+id/story_create_value_audio_link"
+                android:layout_width="125dp"
+                android:layout_height="wrap_content"
+                android:onClick="addAudioClicked"
+                android:text="@string/story_create_add_audio_button_text_value" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:id="@+id/story_create_value_audio_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_span="3"
+                android:text="" />
+        </TableRow>
+
+        <TableRow>
+
+            <EditText
+                android:id="@+id/story_video_file_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_span="2"
+                android:hint="@string/story_create_video_file_name_hint_value"
+                android:inputType="text" />
+
+            <Button
+                android:id="@+id/story_create_value_video_button"
+                android:layout_width="125dp"
+                android:layout_height="wrap_content"
+                android:onClick="addVideoClicked"
+                android:text="@string/story_create_add_video_button_text_value" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:id="@+id/story_create_value_video_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_span="3"
+                android:text="" />
+        </TableRow>
+
+        <TableRow>
+
+            <EditText
+                android:id="@+id/story_create_value_image_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_span="2"
+                android:hint="@string/story_create_image_name_hint_value"
+                android:inputType="text" />
+
+            <Button
+                android:id="@+id/story_create_value_image_button"
+                android:layout_width="125dp"
+                android:layout_height="wrap_content"
+                android:onClick="addPhotoClicked"
+                android:text="@string/story_create_add_image_button_text_value" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:id="@+id/story_create_value_image_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_span="3"
+                android:text="" />
+        </TableRow>
+
+        <TableRow>
+
+            <Button
+                android:id="@+id/story_create_value_story_time"
+                android:layout_width="125dp"
+                android:layout_height="wrap_content"
+                android:onClick="getDateClicked"
+                android:text="@string/story_create_set_time_text_value" />
+
+            <Button
+                android:id="@+id/story_create_value_location_button"
+                android:layout_width="125dp"
+                android:layout_height="wrap_content"
+                android:onClick="getLocationClicked"
+                android:text="@string/story_create_add_location_button_text_value" />
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#ffffff"
+                android:shrinkColumns="*"
+                android:stretchColumns="*" >
+
+                <TableRow>
+
+                    <TextView
+                        android:id="@+id/story_create_label_latitude"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="left"
+                        android:text="@string/story_create_latitude_text_value" />
+
+                    <TextView
+                        android:id="@+id/story_create_value_latitude"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="right"
+                        android:text="@string/story_create_latitude_default_value"
+                        android:textAlignment="gravity" />
+                </TableRow>
+
+                <TableRow>
+
+                    <TextView
+                        android:id="@+id/story_create_label_longitude"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="left"
+                        android:text="@string/story_create_longitude_text_value" />
+
+                    <TextView
+                        android:id="@+id/story_create_value_longitude"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="right"
+                        android:text="@string/story_create_longitude_default_value"
+                        android:textAlignment="gravity" />
+                </TableRow>
+            </TableLayout>
+        </TableRow>
+
+        <TableRow>
+
+            <Button
+                android:id="@+id/story_create_button_save"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/story_create_button_label_create" />
+
+            <Button
+                android:id="@+id/story_create_button_reset"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/story_create_button_label_clear" />
+
+            <Button
+                android:id="@+id/story_create_button_cancel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/story_create_button_label_cancel" />
+        </TableRow>
+    </TableLayout>
+
+</ScrollView>
