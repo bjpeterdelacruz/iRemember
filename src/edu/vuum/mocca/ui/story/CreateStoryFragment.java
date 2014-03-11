@@ -71,9 +71,6 @@ import edu.vanderbilt.mooc.R;
 import edu.vuum.mocca.orm.MoocResolver;
 import edu.vuum.mocca.orm.StoryData;
 
-/**
- * Fragments require a Container Activity, this is the one for the Edit StoryData
- */
 public class CreateStoryFragment extends Fragment {
 
   private final static String LOG_TAG = CreateStoryFragment.class.getCanonicalName();
@@ -226,9 +223,7 @@ public class CreateStoryFragment extends Fragment {
         StoryData newData =
             new StoryData(-1, loginId, storyId, title, body, audioLink, videoLink, imageName, imageData, "", 0,
                 storyTime, latitude, longitude);
-        Log.d(CreateStoryFragment.class.getCanonicalName(), "imageName" + imageNameET.getText());
-
-        Log.d(CreateStoryFragment.class.getCanonicalName(), "newStoryData:" + newData);
+        Log.d(LOG_TAG, "newStoryData:" + newData);
 
         // Insert it through Resolver to be put into ContentProvider
         try {
@@ -252,9 +247,10 @@ public class CreateStoryFragment extends Fragment {
 
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    Log.d(LOG_TAG, "CreateStoryFragment.onActivityResult called. requestCode: " + requestCode + " resultCode:" + resultCode
-        + "data:" + data);
-    if (requestCode == CreateStoryActivity.CAMERA_PIC_REQUEST) {
+    Log.d(LOG_TAG, "CreateStoryFragment.onActivityResult called. requestCode: " + requestCode + " resultCode: "
+        + resultCode + "data: " + data);
+    switch (requestCode) {
+    case CreateStoryActivity.CAMERA_PIC_REQUEST:
       if (resultCode == CreateStoryActivity.RESULT_OK) {
         // Image captured and saved to fileUri specified in the Intent
         if (data != null) {
@@ -262,39 +258,23 @@ public class CreateStoryFragment extends Fragment {
         }
         imageLocation.setText(imagePath.toString());
       }
-      else if (resultCode == CreateStoryActivity.RESULT_CANCELED) {
-        // User cancelled the image capture
-      }
-      else {
-        // Image capture failed. Advise user
-      }
-    }
-    else if (requestCode == CreateStoryActivity.CAMERA_VIDEO_REQUEST) {
+      break;
+    case CreateStoryActivity.CAMERA_VIDEO_REQUEST:
       if (resultCode == CreateStoryActivity.RESULT_OK) {
         // Video captured and saved to fileUri specified in the Intent
         fileUri = data.getData();
         videoLocation.setText(fileUri.toString());
       }
-      else if (resultCode == CreateStoryActivity.RESULT_CANCELED) {
-        // User cancelled the video capture
-      }
-      else {
-        // Image capture failed. Advise user
-      }
-    }
-    else if (requestCode == CreateStoryActivity.MIC_SOUND_REQUEST) {
+      break;
+    case CreateStoryActivity.MIC_SOUND_REQUEST:
       if (resultCode == CreateStoryActivity.RESULT_OK) {
         // Audio captured and saved to fileUri specified in the Intent
         audioPath = (String) data.getExtras().get("data");
         audioLocation.setText("file://" + audioPath.toString());
       }
-      else if (resultCode == CreateStoryActivity.RESULT_CANCELED) {
-        // User cancelled the audio capture
-      }
-      else {
-        // Image capture failed. Advise user
-      }
-
+      break;
+    default:
+      throw new IllegalArgumentException("Invalid request code: " + requestCode);
     }
   }
 

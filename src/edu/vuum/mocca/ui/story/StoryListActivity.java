@@ -51,50 +51,43 @@ package edu.vuum.mocca.ui.story;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
-
 import edu.vanderbilt.mooc.R;
 
-/**
- * Fragments require a Container Activity, this is the one for the List
- * StoryData
- */
 public class StoryListActivity extends StoryActivityBase {
-    private static final String LOG_TAG = StoryListActivity.class
-            .getCanonicalName();
+  private static final String LOG_TAG = StoryListActivity.class.getCanonicalName();
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.d(LOG_TAG, "onCreate");
-        promptOnBackPressed = true;
-        // set the Layout of main Activity.
-        // (contains only the fragment holder)
-        setContentView(R.layout.main);
-        StoryListFragment fragment;
-        String imageFragmentTag = "imageFragmentTag";
-        if (savedInstanceState == null) {
-            fragment = new StoryListFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.locations, fragment, imageFragmentTag).commit();
-        }
-
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    Log.d(LOG_TAG, "onCreate");
+    promptOnBackPressed = true;
+    // set the Layout of main Activity.
+    // (contains only the fragment holder)
+    setContentView(R.layout.main);
+    StoryListFragment fragment;
+    String imageFragmentTag = "imageFragmentTag";
+    if (savedInstanceState == null) {
+      fragment = new StoryListFragment();
+      getSupportFragmentManager().beginTransaction().add(R.id.locations, fragment, imageFragmentTag).commit();
     }
 
-	@Override
-    public boolean onKeyDown(final int keyCode, final KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            event.startTracking();
-            return true;
-        }
-        return super.onKeyLongPress(keyCode, event);
-    }
+  }
 
-    @Override
-    public boolean onKeyLongPress(final int keyCode, final KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            finish();
-            return true;
-        }
-        return super.onKeyLongPress(keyCode, event);
+  @Override
+  public boolean onKeyDown(final int keyCode, final KeyEvent event) {
+    if (keyCode == KeyEvent.KEYCODE_BACK) {
+      event.startTracking();
+      return true;
     }
+    return super.onKeyLongPress(keyCode, event);
+  }
+
+  @Override
+  public boolean onKeyLongPress(final int keyCode, final KeyEvent event) {
+    if (keyCode == KeyEvent.KEYCODE_BACK) {
+      finish();
+      return true;
+    }
+    return super.onKeyLongPress(keyCode, event);
+  }
 }

@@ -49,7 +49,7 @@ University of Maryland to appear in their names.
 package edu.vuum.mocca.ui.story;
 
 import java.util.ArrayList;
-
+import java.util.List;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -57,7 +57,6 @@ import android.support.v4.app.ListFragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -65,202 +64,185 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
 import edu.vanderbilt.mooc.R;
 import edu.vuum.mocca.orm.MoocResolver;
 import edu.vuum.mocca.orm.StoryData;
 import edu.vuum.mocca.provider.MoocSchema;
 
 /**
- * Fragment to hold all the UI components and related Logic for Listing
- * StoryData.
+ * Fragment to hold all the UI components and related Logic for Listing StoryData.
  * 
  * @author Michael A. Walker
  * 
  */
 public class StoryListFragment extends ListFragment {
 
-	static final String LOG_TAG = StoryListFragment.class.getCanonicalName();
+  private static final String LOG_TAG = StoryListFragment.class.getCanonicalName();
 
-	OnOpenWindowInterface mOpener;
-	MoocResolver resolver;
-	ArrayList<StoryData> StoryData;
-	private StoryDataArrayAdaptor aa;
+  private OnOpenWindowInterface mOpener;
+  private MoocResolver resolver;
+  private List<StoryData> StoryData;
+  private StoryDataArrayAdaptor aa;
 
-	EditText filterET;
+  private EditText filterET;
 
-	/**
-	 * @see android.support.v4.app.Fragment#onAttach(android.app.Activity)
-	 */
-	@Override
-	public void onAttach(Activity activity) {
-		Log.d(LOG_TAG, "onAttach start");
-		super.onAttach(activity);
-		try {
-			mOpener = (OnOpenWindowInterface) activity;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString()
-					+ " must implement OnOpenWindowListener" + e.getMessage());
-		}
-		Log.d(LOG_TAG, "onAttach end");
-	}
+  /**
+   * @see android.support.v4.app.Fragment#onAttach(android.app.Activity)
+   */
+  @Override
+  public void onAttach(Activity activity) {
+    Log.d(LOG_TAG, "onAttach start");
+    super.onAttach(activity);
+    try {
+      mOpener = (OnOpenWindowInterface) activity;
+    }
+    catch (ClassCastException e) {
+      throw new ClassCastException(activity.toString() + " must implement OnOpenWindowListener" + e.getMessage());
+    }
+    Log.d(LOG_TAG, "onAttach end");
+  }
 
-	@Override
-	/**
-	 * @see android.support.v4.app.Fragment#onDetach()
-	 */
-	public void onDetach() {
-		super.onDetach();
-		mOpener = null;
-	}
+  @Override
+  /**
+   * @see android.support.v4.app.Fragment#onDetach()
+   */
+  public void onDetach() {
+    super.onDetach();
+    mOpener = null;
+  }
 
-	/**
-	 * The system calls this when creating the fragment. Within your
-	 * implementation, you should initialize essential components of the
-	 * fragment that you want to retain when the fragment is paused or stopped,
-	 * then resumed.
-	 */
-	@Override
-	/**
-	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
-	 */
-	public void onCreate(Bundle savedInstanceState) {
-		Log.d(LOG_TAG, "onCreate");
-		super.onCreate(savedInstanceState);
-		resolver = new MoocResolver(getActivity());
-		StoryData = new ArrayList<StoryData>();
-		setRetainInstance(true);
-	}
+  /**
+   * The system calls this when creating the fragment. Within your implementation, you should initialize essential
+   * components of the fragment that you want to retain when the fragment is paused or stopped, then resumed.
+   */
+  @Override
+  /**
+   * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
+   */
+  public void onCreate(Bundle savedInstanceState) {
+    Log.d(LOG_TAG, "onCreate");
+    super.onCreate(savedInstanceState);
+    resolver = new MoocResolver(getActivity());
+    StoryData = new ArrayList<StoryData>();
+    setRetainInstance(true);
+  }
 
-	@Override
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater
-	 * , android.view.ViewGroup, android.os.Bundle)
-	 */
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.story_listview, container, false);
-		// get the ListView that will be displayed
-		ListView lv = (ListView) view.findViewById(android.R.id.list);
+  @Override
+  /*
+   * (non-Javadoc)
+   * 
+   * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater , android.view.ViewGroup,
+   * android.os.Bundle)
+   */
+  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    View view = inflater.inflate(R.layout.story_listview, container, false);
+    // get the ListView that will be displayed
+    ListView lv = (ListView) view.findViewById(android.R.id.list);
 
-		filterET = (EditText) view
-				.findViewById(R.id.story_listview_tags_filter);
-		
-		filterET.addTextChangedListener(new TextWatcher() {
-			
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				updateStoryData();
-			}
-			
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-				
-			}
-			
-			@Override
-			public void afterTextChanged(Editable s) {
-				
-			}
-		});
+    filterET = (EditText) view.findViewById(R.id.story_listview_tags_filter);
 
-		// customize the ListView in whatever desired ways.
-		lv.setBackgroundColor(Color.GRAY);
-		// return the parent view
-		return view;
-	}
+    filterET.addTextChangedListener(new TextWatcher() {
 
-	//
-	// This function is called every time the filter EditText is changed
-	// This function should update the ListView to match the specified
-	// filter text.
-	//
-	
-	public void updateStoryData() {
-		Log.d(LOG_TAG, "updateStoryData");
-		try {
-			StoryData.clear();
+      @Override
+      public void onTextChanged(CharSequence s, int start, int before, int count) {
+        updateStoryData();
+      }
 
-			String filterWord = filterET.getText().toString();
+      @Override
+      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-			// create String that will match with 'like' in query
-			filterWord = "%" + filterWord + "%";
+      }
 
-			ArrayList<StoryData> currentList2 = resolver.queryStoryData(null,
-					MoocSchema.Story.Cols.TITLE + " LIKE ? ",
-					new String[] { filterWord }, null);
-			
-			StoryData.addAll(currentList2);
-			aa.notifyDataSetChanged();
-		} catch (Exception e) {
-			Log.e(LOG_TAG,
-					"Error connecting to Content Provider" + e.getMessage());
-			e.printStackTrace();
-		}
-		
-	}
+      @Override
+      public void afterTextChanged(Editable s) {
 
-	@Override
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-	 */
-	public void onActivityCreated(Bundle savedInstanceState) {
-		// create the custom array adapter that will make the custom row
-		// layouts
-		super.onActivityCreated(savedInstanceState);
-		Log.d(LOG_TAG, "onActivityCreated");
-		aa = new StoryDataArrayAdaptor(getActivity(),
-				R.layout.story_listview_custom_row, StoryData);
+      }
+    });
 
-		// update the back end data.
-		updateStoryData();
+    // customize the ListView in whatever desired ways.
+    lv.setBackgroundColor(Color.GRAY);
+    // return the parent view
+    return view;
+  }
 
-		setListAdapter(aa);
+  //
+  // This function is called every time the filter EditText is changed
+  // This function should update the ListView to match the specified
+  // filter text.
+  //
 
-		Button createNewButton = (Button) getView().findViewById(
-				R.id.story_listview_create);
-		createNewButton.setOnClickListener(new OnClickListener() {
+  public void updateStoryData() {
+    Log.d(LOG_TAG, "updateStoryData");
+    try {
+      StoryData.clear();
 
-			@Override
-			public void onClick(View v) {
-				mOpener.openCreateStoryFragment();
-			}
-		});
-	}
-	
-	/*
-	 * Refresh story list on fragment resume (rather than having to manually click a refresh button)
-	 * (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onResume()
-	 */
-	@Override
-	public void onResume() {
-		super.onResume();
-		updateStoryData();
-	}
+      String filterWord = filterET.getText().toString();
 
-	@Override
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * android.support.v4.app.ListFragment#onListItemClick(android.widget.ListView
-	 * , android.view.View, int, long)
-	 */
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		Log.d(LOG_TAG, "onListItemClick");
-		Log.d(LOG_TAG,
-				"position: " + position + "id = "
-						+ (StoryData.get(position)).getKeyId());
-		mOpener.openViewStoryFragment((StoryData.get(position)).getKeyId());
-	}
+      // create String that will match with 'like' in query
+      filterWord = "%" + filterWord + "%";
+
+      ArrayList<StoryData> currentList2 =
+          resolver.queryStoryData(null, MoocSchema.Story.Cols.TITLE + " LIKE ? ", new String[] { filterWord }, null);
+
+      StoryData.addAll(currentList2);
+      aa.notifyDataSetChanged();
+    }
+    catch (Exception e) {
+      Log.e(LOG_TAG, "Error connecting to Content Provider" + e.getMessage());
+      e.printStackTrace();
+    }
+
+  }
+
+  @Override
+  /*
+   * (non-Javadoc)
+   * 
+   * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+   */
+  public void onActivityCreated(Bundle savedInstanceState) {
+    // create the custom array adapter that will make the custom row
+    // layouts
+    super.onActivityCreated(savedInstanceState);
+    Log.d(LOG_TAG, "onActivityCreated");
+    aa = new StoryDataArrayAdaptor(getActivity(), R.layout.story_listview_custom_row, StoryData);
+
+    // update the back end data.
+    updateStoryData();
+
+    setListAdapter(aa);
+
+    Button createNewButton = (Button) getView().findViewById(R.id.story_listview_create);
+    createNewButton.setOnClickListener(new OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+        mOpener.openCreateStoryFragment();
+      }
+    });
+  }
+
+  /*
+   * Refresh story list on fragment resume (rather than having to manually click a refresh button) (non-Javadoc)
+   * 
+   * @see android.support.v4.app.Fragment#onResume()
+   */
+  @Override
+  public void onResume() {
+    super.onResume();
+    updateStoryData();
+  }
+
+  @Override
+  /*
+   * (non-Javadoc)
+   * 
+   * @see android.support.v4.app.ListFragment#onListItemClick(android.widget.ListView , android.view.View, int, long)
+   */
+  public void onListItemClick(ListView l, View v, int position, long id) {
+    Log.d(LOG_TAG, "onListItemClick");
+    Log.d(LOG_TAG, "position: " + position + "id = " + (StoryData.get(position)).getKeyId());
+    mOpener.openViewStoryFragment((StoryData.get(position)).getKeyId());
+  }
 
 }

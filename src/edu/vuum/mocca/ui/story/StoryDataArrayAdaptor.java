@@ -46,11 +46,9 @@ grant permission for the name Vanderbilt University or
 University of Maryland to appear in their names.
  */
 
-
 package edu.vuum.mocca.ui.story;
 
 import java.util.List;
-
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -65,58 +63,52 @@ import edu.vuum.mocca.orm.StoryData;
 
 public class StoryDataArrayAdaptor extends ArrayAdapter<StoryData> {
 
-    private static final String LOG_TAG = StoryDataArrayAdaptor.class
-            .getCanonicalName();
+  private static final String LOG_TAG = StoryDataArrayAdaptor.class.getCanonicalName();
 
-    int resource;
+  private int resource;
 
-    public StoryDataArrayAdaptor(Context _context, int _resource,
-            List<StoryData> _items) {
-        super(_context, _resource, _items);
-        Log.d(LOG_TAG, "constructor()");
-        resource = _resource;
+  public StoryDataArrayAdaptor(Context _context, int _resource, List<StoryData> _items) {
+    super(_context, _resource, _items);
+    Log.d(LOG_TAG, "constructor()");
+    resource = _resource;
+  }
+
+  @Override
+  public View getView(int position, View convertView, ViewGroup parent) {
+    Log.d(LOG_TAG, "getView()");
+    LinearLayout todoView = null;
+    try {
+      StoryData item = getItem(position);
+
+      long keyId = item.getKeyId();
+      String title = item.getTitle();
+      long creationTime = item.getStoryTime();
+
+      if (convertView == null) {
+        todoView = new LinearLayout(getContext());
+        String inflater = Context.LAYOUT_INFLATER_SERVICE;
+        LayoutInflater vi = (LayoutInflater) getContext().getSystemService(inflater);
+        vi.inflate(resource, todoView, true);
+      }
+      else {
+        todoView = (LinearLayout) convertView;
+      }
+
+      TextView keyIdTV = (TextView) todoView.findViewById(R.id.story_listview_custom_row_KEY_ID_textView);
+
+      TextView titleTV = (TextView) todoView.findViewById(R.id.story_listview_custom_row_title_textView);
+      TextView creationTimeTV = (TextView) todoView.findViewById(R.id.story_listview_custom_row_creation_time_textView);
+
+      keyIdTV.setText(String.valueOf(keyId));
+      titleTV.setText(String.valueOf(title));
+      creationTimeTV.setText(StoryData.FORMAT.format(creationTime));
+      Log.i(LOG_TAG, String.valueOf(item.getCreationTime()));
+
     }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        Log.d(LOG_TAG, "getView()");
-        LinearLayout todoView = null;
-        try {
-            StoryData item = getItem(position);
-
-            long KEY_ID = item.getKeyId();
-            String title = item.getTitle();
-            long creationTime = item.getStoryTime();
-            
-            if (convertView == null) {
-                todoView = new LinearLayout(getContext());
-                String inflater = Context.LAYOUT_INFLATER_SERVICE;
-                LayoutInflater vi = (LayoutInflater) getContext()
-                        .getSystemService(inflater);
-                vi.inflate(resource, todoView, true);
-            } else {
-                todoView = (LinearLayout) convertView;
-            }
-
-            TextView KEY_IDTV = (TextView) todoView
-            		.findViewById(R.id.story_listview_custom_row_KEY_ID_textView);
-            
-            TextView titleTV = (TextView) todoView
-                    .findViewById(R.id.story_listview_custom_row_title_textView);
-            TextView creationTimeTV = (TextView) todoView
-                    .findViewById(R.id.story_listview_custom_row_creation_time_textView);
-            
-            KEY_IDTV.setText("" + KEY_ID);
-            titleTV.setText("" + title);
-            creationTimeTV.setText("" + StoryData.FORMAT.format(creationTime));
-            Log.i("StoryDataArrayAdaptor", String.valueOf(item.getCreationTime()));
-            
-        } catch (Exception e) {
-            Toast.makeText(getContext(),
-                    "exception in ArrayAdpter: " + e.getMessage(),
-                    Toast.LENGTH_SHORT).show();
-        }
-        return todoView;
+    catch (Exception e) {
+      Toast.makeText(getContext(), "exception in ArrayAdpter: " + e.getMessage(), Toast.LENGTH_SHORT).show();
     }
+    return todoView;
+  }
 
 }

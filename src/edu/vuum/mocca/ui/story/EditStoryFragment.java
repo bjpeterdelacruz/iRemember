@@ -95,7 +95,7 @@ public class EditStoryFragment extends Fragment {
   // Custom ContentResolver wrapper.
   private MoocResolver resolver;
 
-  // TODO determine/label pattern.
+  // TODO Determine/label pattern.
   private OnClickListener myOnClickListener = new OnClickListener() {
     @Override
     public void onClick(View v) {
@@ -203,7 +203,7 @@ public class EditStoryFragment extends Fragment {
       mOpener.openViewStoryFragment(getUniqueKey());
     }
     else {
-      getActivity().finish(); // same as hitting 'back' button
+      getActivity().finish(); // same as hitting the Back button
     }
   }
 
@@ -253,7 +253,7 @@ public class EditStoryFragment extends Fragment {
       mOpener.openViewStoryFragment(getUniqueKey());
     }
     else {
-      getActivity().finish(); // same as hitting 'back' button
+      getActivity().finish(); // same as hitting the Back button
     }
 
   }
@@ -288,7 +288,7 @@ public class EditStoryFragment extends Fragment {
     return true;
   }
 
-  public long getUniqueKey() {
+  long getUniqueKey() {
     return getArguments().getLong(ROW_IDENTIFIER_TAG, 0);
   }
 

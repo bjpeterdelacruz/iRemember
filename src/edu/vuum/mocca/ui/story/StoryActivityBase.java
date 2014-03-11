@@ -66,10 +66,9 @@ import edu.vanderbilt.mooc.R;
  */
 public class StoryActivityBase extends FragmentActivity implements OnOpenWindowInterface {
 
-  boolean promptOnBackPressed = false;
-  StoryListFragment fragment;
   private static final String LOG_TAG = StoryActivityBase.class.getCanonicalName();
-  boolean mDualPane;
+
+  boolean promptOnBackPressed, mDualPane;
 
   @Override
   /**
@@ -78,20 +77,19 @@ public class StoryActivityBase extends FragmentActivity implements OnOpenWindowI
    * This functionality can easily be removed.
    */
   public void onBackPressed() {
-    if (promptOnBackPressed == true) {
-      new AlertDialog.Builder(this).setIcon(android.R.drawable.ic_dialog_alert).setTitle("Closing Activity")
-          .setMessage("Are you sure you want to close this activity?")
-          .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-              finish();
-            }
-
-          }).setNegativeButton("No", null).show();
-    }
-    else {
+    if (!promptOnBackPressed) {
       super.onBackPressed();
+      return;
     }
+    new AlertDialog.Builder(this).setIcon(android.R.drawable.ic_dialog_alert).setTitle("Closing Activity")
+        .setMessage("Are you sure you want to close this activity?")
+        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            finish();
+          }
+
+        }).setNegativeButton("No", null).show();
   }
 
   /**
@@ -103,20 +101,15 @@ public class StoryActivityBase extends FragmentActivity implements OnOpenWindowI
    * @return boolean truth
    */
   private boolean determineDualPane() {
-    if (getResources().getBoolean(R.bool.isTablet) == true) {
-      mDualPane = true;
-      return true;
-    }
-    else {
-      mDualPane = false;
-      return false;
-    }
+    mDualPane = getResources().getBoolean(R.bool.isTablet);
+    return mDualPane;
   }
 
   /**
    * Logic required to open the appropriate View StoryData Fragment/Activity combination to display properly on the
    * phone or tablet.
    */
+  @Override
   public void openViewStoryFragment(long index) {
     Log.d(LOG_TAG, "openStoryViewFragment(" + index + ")");
     if (determineDualPane()) {
@@ -163,6 +156,7 @@ public class StoryActivityBase extends FragmentActivity implements OnOpenWindowI
    * Logic required to open the appropriate Edit StoryData Fragment/Activity combination to display properly on the
    * phone or tablet.
    */
+  @Override
   public void openEditStoryFragment(final long index) {
     Log.d(LOG_TAG, "openEditStoryFragment(" + index + ")");
     if (determineDualPane()) {
@@ -210,6 +204,7 @@ public class StoryActivityBase extends FragmentActivity implements OnOpenWindowI
    * Logic required to open the appropriate Create StoryData Fragment/Activity combination to display properly on the
    * phone or tablet.
    */
+  @Override
   public void openCreateStoryFragment() {
     Log.d(LOG_TAG, "openCreateStoryFragment");
     if (determineDualPane()) {
@@ -290,27 +285,27 @@ public class StoryActivityBase extends FragmentActivity implements OnOpenWindowI
    */
   /*************************************************************************/
 
-  public static Intent newStoryViewIntent(Activity activity, long index) {
+  private static Intent newStoryViewIntent(Activity activity, long index) {
     Intent intent = new Intent();
     intent.setClass(activity, ViewStoryActivity.class);
     intent.putExtra(StoryViewFragment.ROW_IDENTIFIER_TAG, index);
     return intent;
   }
 
-  public static Intent newEditStoryIntent(Activity activity, long index) {
+  private static Intent newEditStoryIntent(Activity activity, long index) {
     Intent intent = new Intent();
     intent.setClass(activity, EditStoryActivity.class);
     intent.putExtra(EditStoryFragment.ROW_IDENTIFIER_TAG, index);
     return intent;
   }
 
-  public static Intent newListStoryIntent(Activity activity) {
+  private static Intent newListStoryIntent(Activity activity) {
     Intent intent = new Intent();
     intent.setClass(activity, StoryListActivity.class);
     return intent;
   }
 
-  public static Intent newCreateStoryIntent(Activity activity) {
+  private static Intent newCreateStoryIntent(Activity activity) {
     Intent intent = new Intent();
     intent.setClass(activity, CreateStoryActivity.class);
     return intent;

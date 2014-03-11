@@ -75,12 +75,12 @@ University of Maryland to appear in their names.
     <string name="story_view_edittext_title_default_value">Title</string>
     <string name="story_view_edittext_body_default_value">Body</string>
     <string name="story_view_edittext_audio_link_default_value">Play Audio</string>
-    <string name="story_view_edittext_video_link_default_value">VideoLink</string>
-    <string name="story_view_edittext_image_name_default_value">ImageName</string>
-    <string name="story_view_edittext_image_meta_data_default_value">ImageData</string>
+    <string name="story_view_edittext_video_link_default_value">Play Video</string>
+    <string name="story_view_edittext_image_name_default_value">Image Name</string>
+    <string name="story_view_edittext_image_meta_data_default_value">Image Data</string>
     <string name="story_view_edittext_tags_default_value">Tags</string>
-    <string name="story_view_edittext_creation_time_default_value">CreationTime</string>
-    <string name="story_view_edittext_story_time_default_value">StoryTime</string>
+    <string name="story_view_edittext_creation_time_default_value">Creation Time</string>
+    <string name="story_view_edittext_story_time_default_value">Story Time</string>
     <string name="story_view_edittext_latitude_default_value">Latitude</string>
     <string name="story_view_edittext_longitude_default_value">Longitude</string>
     <string name="story_view_label_login_id">LoginId</string>
@@ -89,11 +89,11 @@ University of Maryland to appear in their names.
     <string name="story_view_label_body">Body</string>
     <string name="story_view_label_audio_link">Audio</string>
     <string name="story_view_label_video_link">Video</string>
-    <string name="story_view_label_image_name">ImageName</string>
-    <string name="story_view_label_image_meta_data">ImageData</string>
+    <string name="story_view_label_image_name">Image Name</string>
+    <string name="story_view_label_image_meta_data">Image Data</string>
     <string name="story_view_label_tags">Tags</string>
-    <string name="story_view_label_creation_time">CreationTime</string>
-    <string name="story_view_label_story_time">StoryTime</string>
+    <string name="story_view_label_creation_time">Creation Time</string>
+    <string name="story_view_label_story_time">Story Time</string>
     <string name="story_view_label_latitude">Latitude</string>
     <string name="story_view_label_longitude">Longitude</string>
 

@@ -51,27 +51,24 @@ package edu.vuum.mocca.ui.story;
 import android.os.Bundle;
 
 /**
- * Fragments require a Container Activity, this is the one for the Edit
- * StoryData
+ * Fragments require a Container Activity, this is the one for the Edit StoryData
  */
 public class EditStoryActivity extends StoryActivityBase {
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
 
-		if (savedInstanceState == null) {
-			// During initial setup, plug in the details fragment.
-			long index = getIntent().getExtras().getLong(
-					EditStoryFragment.ROW_IDENTIFIER_TAG);
+    if (savedInstanceState == null) {
+      // During initial setup, plug in the details fragment.
+      long index = getIntent().getExtras().getLong(EditStoryFragment.ROW_IDENTIFIER_TAG);
 
-			EditStoryFragment editor = EditStoryFragment.newInstance(index);
+      EditStoryFragment editor = EditStoryFragment.newInstance(index);
 
-			editor.setArguments(getIntent().getExtras());
+      editor.setArguments(getIntent().getExtras());
 
-			getSupportFragmentManager().beginTransaction()
-					.add(android.R.id.content, editor).commit();
-		}
-	}
+      getSupportFragmentManager().beginTransaction().add(android.R.id.content, editor).commit();
+    }
+  }
 
 }

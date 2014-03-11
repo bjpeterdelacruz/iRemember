@@ -49,20 +49,19 @@ University of Maryland to appear in their names.
 package edu.vuum.mocca.ui.story;
 
 /**
- * An Interface for each that allows each C.R.U.D. (Create, Read, Update,
- * Delete, + List) Activity that allows its Fragment to open up the appropriate
- * other Fragment, when needed. (This is implemented to allow single APK to have
- * different behavior on tablets and phones.
+ * An interface that allows each C.R.U.D. (Create, Read, Update, Delete, + List) activity to allows its fragment to open
+ * up the appropriate other fragment, when needed. (This is implemented to allow single APK to have different behavior
+ * on tablets and phones.)
  * 
  * @author Michael A. Walker
  * 
  */
 public interface OnOpenWindowInterface {
-	public void openEditStoryFragment(long index);
+  public void openEditStoryFragment(long index);
 
-	public void openViewStoryFragment(long index);
+  public void openViewStoryFragment(long index);
 
-	public void openCreateStoryFragment();
+  public void openCreateStoryFragment();
 
-	public void openListStoryFragment();
+  public void openListStoryFragment();
 }

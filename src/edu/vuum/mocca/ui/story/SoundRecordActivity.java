@@ -68,8 +68,7 @@ import android.widget.LinearLayout;
  * 
  * @author Scott
  * @author BJ Peter DeLaCruz
- * @see <a href=
- * 'http://developer.android.com/guide/topics/media/audio-capture.html'>Website</a>
+ * @see <a href= 'http://developer.android.com/guide/topics/media/audio-capture.html'>Website</a>
  */
 public class SoundRecordActivity extends Activity {
 

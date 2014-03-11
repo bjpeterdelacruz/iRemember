@@ -243,8 +243,8 @@ public class StoryViewFragment extends Fragment {
     Long time = Long.valueOf(storyData.getStoryTime());
     storyTimeTV.setText(StoryData.FORMAT.format(time));
 
-    latitudeTV.setText(String.valueOf(storyData.getLatitude()));
-    longitudeTV.setText(String.valueOf(storyData.getLongitude()));
+    latitudeTV.setText(String.format("%.1f", storyData.getLatitude()));
+    longitudeTV.setText(String.format("%.1f", storyData.getLongitude()));
   }
 
   // action to be performed when the edit button is pressed

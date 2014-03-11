@@ -66,10 +66,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-/**
- * Fragments require a Container Activity. This is the one for the Edit StoryData, also handles launching intents for
- * audio/video capture.
- */
 public class CreateStoryActivity extends StoryActivityBase {
 
   private final static String LOG_TAG = CreateStoryActivity.class.getCanonicalName();
@@ -184,7 +180,7 @@ public class CreateStoryActivity extends StoryActivityBase {
       mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp + ".jpg");
       break;
     case MEDIA_TYPE_VIDEO:
-      mediaFile = new File(mediaStorageDir.getPath() + File.separator + "VID_" + timeStamp + ".mp4");      
+      mediaFile = new File(mediaStorageDir.getPath() + File.separator + "VID_" + timeStamp + ".mp4");
       break;
     case MEDIA_TYPE_AUDIO:
       mediaFile = new File(mediaStorageDir.getPath() + File.separator + "AUD_" + timeStamp + ".3gp");
