@@ -51,6 +51,8 @@ package edu.vuum.mocca.ui.story;
 import java.text.ParseException;
 import java.util.Date;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
@@ -71,7 +73,7 @@ import edu.vanderbilt.mooc.R;
 import edu.vuum.mocca.orm.MoocResolver;
 import edu.vuum.mocca.orm.StoryData;
 
-public class CreateStoryFragment extends Fragment {
+public class CreateStoryFragment extends Fragment implements CustomFragment {
 
   private final static String LOG_TAG = CreateStoryFragment.class.getCanonicalName();
 
@@ -103,7 +105,8 @@ public class CreateStoryFragment extends Fragment {
   private OnOpenWindowInterface mOpener;
   private MoocResolver resolver;
 
-  void setImagePath(Uri imagePath) {
+  @Override
+  public void setImagePath(Uri imagePath) {
     this.imagePath = imagePath;
   }
 
@@ -189,8 +192,18 @@ public class CreateStoryFragment extends Fragment {
 
       @Override
       public void onClick(View v) {
-
         Editable titleCreateable = titleET.getText();
+        String title = titleCreateable.toString();
+        if (title.isEmpty()) {
+          AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+          builder.setMessage("Please enter a title for this story.").setCancelable(false)
+              .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                  dialog.cancel();
+                }
+              }).create().show();
+          return;
+        }
         Editable bodyCreateable = bodyET.getText();
         Editable imageNameCreateable = imageNameET.getText();
         String storyTimeCreateable = storyTimeET.getText().toString();
@@ -208,8 +221,7 @@ public class CreateStoryFragment extends Fragment {
         long loginId = 0;
         long storyId = 0;
 
-        String title = String.valueOf(titleCreateable.toString());
-        String body = String.valueOf(bodyCreateable.toString());
+        String body = bodyCreateable.toString();
         String audioLink = audioPath == null ? "" : audioPath;
         String videoLink = fileUri == null ? "" : fileUri.toString();
         String imageName = imageNameCreateable.toString();
@@ -250,7 +262,7 @@ public class CreateStoryFragment extends Fragment {
     Log.d(LOG_TAG, "CreateStoryFragment.onActivityResult called. requestCode: " + requestCode + " resultCode: "
         + resultCode + "data: " + data);
     switch (requestCode) {
-    case CreateStoryActivity.CAMERA_PIC_REQUEST:
+    case Constants.CAMERA_PIC_REQUEST:
       if (resultCode == CreateStoryActivity.RESULT_OK) {
         // Image captured and saved to fileUri specified in the Intent
         if (data != null) {
@@ -259,14 +271,14 @@ public class CreateStoryFragment extends Fragment {
         imageLocation.setText(imagePath.toString());
       }
       break;
-    case CreateStoryActivity.CAMERA_VIDEO_REQUEST:
+    case Constants.CAMERA_VIDEO_REQUEST:
       if (resultCode == CreateStoryActivity.RESULT_OK) {
         // Video captured and saved to fileUri specified in the Intent
         fileUri = data.getData();
         videoLocation.setText(fileUri.toString());
       }
       break;
-    case CreateStoryActivity.MIC_SOUND_REQUEST:
+    case Constants.MIC_SOUND_REQUEST:
       if (resultCode == CreateStoryActivity.RESULT_OK) {
         // Audio captured and saved to fileUri specified in the Intent
         audioPath = (String) data.getExtras().get("data");

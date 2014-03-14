@@ -73,8 +73,8 @@ import android.widget.LinearLayout;
 public class SoundRecordActivity extends Activity {
 
   private static final String LOG_TAG = SoundRecordActivity.class.getName();
-  static final String EXTRA_OUTPUT = "OUTPUT_FILENAME";
-  private static String mFileName = null;
+
+  private static String mFileName;
 
   private boolean recorded = false;
 
@@ -136,6 +136,7 @@ public class SoundRecordActivity extends Activity {
         }
         else {
           Intent data = new Intent();
+          data.putExtra(Constants.REQUEST_CODE, Constants.MIC_SOUND_REQUEST);
           data.putExtra("data", mFileName);
           setResult(RESULT_OK, data);
           setText("Start recording");
@@ -188,7 +189,7 @@ public class SoundRecordActivity extends Activity {
     setContentView(ll);
 
     Intent caller = getIntent();
-    mFileName = new File(((Uri) caller.getExtras().get(EXTRA_OUTPUT)).getPath()).getAbsolutePath();
+    mFileName = new File(((Uri) caller.getExtras().get(Constants.EXTRA_OUTPUT)).getPath()).getAbsolutePath();
 
     Log.i(LOG_TAG, "Filename: " + mFileName);
   }

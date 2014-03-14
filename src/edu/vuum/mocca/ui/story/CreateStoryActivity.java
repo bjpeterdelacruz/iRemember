@@ -48,20 +48,12 @@ University of Maryland to appear in their names.
 
 package edu.vuum.mocca.ui.story;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import android.app.DialogFragment;
 import android.content.Context;
-import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.app.DialogFragment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -69,14 +61,6 @@ import android.widget.Toast;
 public class CreateStoryActivity extends StoryActivityBase {
 
   private final static String LOG_TAG = CreateStoryActivity.class.getCanonicalName();
-
-  private enum MediaType {
-    MEDIA_TYPE_IMAGE, MEDIA_TYPE_VIDEO, MEDIA_TYPE_AUDIO;
-  }
-
-  static final int CAMERA_PIC_REQUEST = 1;
-  static final int CAMERA_VIDEO_REQUEST = 2;
-  static final int MIC_SOUND_REQUEST = 3;
 
   private CreateStoryFragment fragment;
 
@@ -92,15 +76,15 @@ public class CreateStoryActivity extends StoryActivityBase {
   }
 
   public void addAudioClicked(View aView) {
-    launchSoundIntent();
+    Utils.launchSoundIntent(this);
   }
 
   public void addVideoClicked(View aView) {
-    launchVideoCameraIntent();
+    Utils.launchVideoCameraIntent(this);
   }
 
   public void addPhotoClicked(View aView) {
-    launchCameraIntent();
+    Utils.launchCameraIntent(this, fragment);
   }
 
   public void getDateClicked(View aView) {
@@ -146,71 +130,6 @@ public class CreateStoryActivity extends StoryActivityBase {
 
   private void makeUseOfNewLocation(Location loc) {
     fragment.setLocation(loc);
-  }
-
-  private static Uri getOutputMediaFileUri(MediaType type) {
-    return Uri.fromFile(getOutputMediaFile(type));
-  }
-
-  private static File getOutputMediaFile(MediaType type) {
-    Log.d(LOG_TAG, "Media type: " + type);
-    String state = Environment.getExternalStorageState();
-    Log.i(LOG_TAG, "External storage state: " + state);
-
-    // TODO Store videos in a separate directory.
-    File mediaStorageDir;
-    if (state.equals(Environment.MEDIA_MOUNTED)) {
-      mediaStorageDir = new File(Environment.getExternalStorageDirectory(), "iRemember");
-    }
-    else {
-      return null;
-    }
-    // This location works best if you want the images that are created to be shared
-    // between applications and persisted after your app has been uninstalled.
-
-    if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()) {
-      Log.e(LOG_TAG, "Failed to create directory: " + mediaStorageDir);
-      return null;
-    }
-
-    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
-    File mediaFile;
-    switch (type) {
-    case MEDIA_TYPE_IMAGE:
-      mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp + ".jpg");
-      break;
-    case MEDIA_TYPE_VIDEO:
-      mediaFile = new File(mediaStorageDir.getPath() + File.separator + "VID_" + timeStamp + ".mp4");
-      break;
-    case MEDIA_TYPE_AUDIO:
-      mediaFile = new File(mediaStorageDir.getPath() + File.separator + "AUD_" + timeStamp + ".3gp");
-      break;
-    default:
-      throw new IllegalArgumentException("Unsupported media type: " + type);
-    }
-
-    return mediaFile;
-  }
-
-  private void launchSoundIntent() {
-    Intent intent = new Intent(this, SoundRecordActivity.class);
-    intent.putExtra(SoundRecordActivity.EXTRA_OUTPUT, getOutputMediaFileUri(MediaType.MEDIA_TYPE_AUDIO));
-    startActivityForResult(intent, MIC_SOUND_REQUEST);
-  }
-
-  private void launchCameraIntent() {
-    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-    Uri imagePath = getOutputMediaFileUri(MediaType.MEDIA_TYPE_IMAGE);
-    fragment.setImagePath(imagePath);
-    intent.putExtra(MediaStore.EXTRA_OUTPUT, imagePath);
-    startActivityForResult(intent, CAMERA_PIC_REQUEST);
-  }
-
-  private void launchVideoCameraIntent() {
-    Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-    intent.putExtra(MediaStore.EXTRA_OUTPUT, getOutputMediaFileUri(MediaType.MEDIA_TYPE_VIDEO));
-    intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-    startActivityForResult(intent, CAMERA_VIDEO_REQUEST);
   }
 
 }

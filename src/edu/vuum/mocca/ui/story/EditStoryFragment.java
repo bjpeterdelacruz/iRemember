@@ -51,7 +51,9 @@ package edu.vuum.mocca.ui.story;
 import java.text.ParseException;
 import java.util.Date;
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.app.Fragment;
@@ -69,9 +71,10 @@ import edu.vanderbilt.mooc.R;
 import edu.vuum.mocca.orm.MoocResolver;
 import edu.vuum.mocca.orm.StoryData;
 
-public class EditStoryFragment extends Fragment {
+public class EditStoryFragment extends Fragment implements CustomFragment {
 
   private final static String LOG_TAG = EditStoryFragment.class.getCanonicalName();
+
   // Variable for passing around row index
   final static String ROW_IDENTIFIER_TAG = "index";
   private EditText titleET;
@@ -86,6 +89,8 @@ public class EditStoryFragment extends Fragment {
   private EditText latitudeET;
   private EditText longitudeET;
 
+  private Button newAudio, removeAudio, newVideo, removeVideo, newImage, removeImage;
+
   private Button saveButton;
   private Button resetButton;
   private Button cancelButton;
@@ -94,6 +99,13 @@ public class EditStoryFragment extends Fragment {
   private OnOpenWindowInterface mOpener;
   // Custom ContentResolver wrapper.
   private MoocResolver resolver;
+
+  private Uri imagePath;
+
+  @Override
+  public void setImagePath(Uri imagePath) {
+    this.imagePath = imagePath;
+  }
 
   // TODO Determine/label pattern.
   private OnClickListener myOnClickListener = new OnClickListener() {
@@ -168,11 +180,108 @@ public class EditStoryFragment extends Fragment {
     latitudeET = (EditText) getView().findViewById(R.id.story_edit_latitude);
     longitudeET = (EditText) getView().findViewById(R.id.story_edit_longitude);
 
+    newAudio = (Button) getView().findViewById(R.id.story_edit_new_audio);
+    removeAudio = (Button) getView().findViewById(R.id.story_edit_remove_audio);
+    newVideo = (Button) getView().findViewById(R.id.story_edit_new_video);
+    removeVideo = (Button) getView().findViewById(R.id.story_edit_remove_video);
+    newImage = (Button) getView().findViewById(R.id.story_edit_new_image);
+    removeImage = (Button) getView().findViewById(R.id.story_edit_remove_image);
+
+    newAudio.setOnClickListener(new OnClickListener() {
+
+      @Override
+      public void onClick(View view) {
+        Utils.launchSoundIntent(getActivity());
+      }
+
+    });
+    removeAudio.setOnClickListener(new OnClickListener() {
+
+      @Override
+      public void onClick(View view) {
+        audioLinkET.setText(""); // TODO: Delete file from OS
+        removeAudio.setEnabled(false);
+      }
+
+    });
+    newVideo.setOnClickListener(new OnClickListener() {
+
+      @Override
+      public void onClick(View view) {
+        Utils.launchVideoCameraIntent(getActivity());
+      }
+
+    });
+    removeVideo.setOnClickListener(new OnClickListener() {
+
+      @Override
+      public void onClick(View view) {
+        videoLinkET.setText(""); // TODO: Delete file from OS
+        removeVideo.setEnabled(false);
+      }
+
+    });
+    newImage.setOnClickListener(new OnClickListener() {
+
+      @Override
+      public void onClick(View view) {
+        Utils.launchCameraIntent(getActivity(), EditStoryFragment.this);
+      }
+
+    });
+    removeImage.setOnClickListener(new OnClickListener() {
+
+      @Override
+      public void onClick(View view) {
+        imageMetaDataET.setText(""); // TODO: Delete file from OS
+        imageTitleET.setEnabled(false);
+        removeImage.setEnabled(false);
+      }
+
+    });
+
     saveButton.setOnClickListener(myOnClickListener);
     resetButton.setOnClickListener(myOnClickListener);
     cancelButton.setOnClickListener(myOnClickListener);
 
     setValuesToDefault();
+  }
+
+  @Override
+  public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    Log.i("EditStoryFragment", "Entered onActivityResult in EditStoryFragment. resultCode = " + resultCode
+        + ". requestCode = " + requestCode);
+    switch (requestCode) {
+    case Constants.CAMERA_PIC_REQUEST:
+      if (resultCode == CreateStoryActivity.RESULT_OK) {
+        // Image captured and saved to fileUri specified in the Intent
+        if (data != null) {
+          imagePath = data.getData();
+        }
+        imageMetaDataET.setText(imagePath.toString());
+        imageTitleET.setEnabled(true);
+        removeImage.setEnabled(true);
+      }
+      break;
+    case Constants.MIC_SOUND_REQUEST:
+      if (resultCode == EditStoryActivity.RESULT_OK) {
+        // Audio captured and saved to fileUri specified in the Intent
+        String audioPath = (String) data.getExtras().get("data");
+        Log.i("EditStoryFragment", audioPath);
+        audioLinkET.setText("file://" + audioPath.toString());
+        removeAudio.setEnabled(true);
+      }
+      break;
+    case Constants.CAMERA_VIDEO_REQUEST:
+      if (resultCode == CreateStoryActivity.RESULT_OK) {
+        // Video captured and saved to fileUri specified in the Intent
+        videoLinkET.setText(data.getData().toString());
+        removeVideo.setEnabled(true);
+      }
+      break;
+    default:
+      throw new IllegalArgumentException("Invalid request code: " + requestCode);
+    }
   }
 
   @Override
@@ -277,10 +386,22 @@ public class EditStoryFragment extends Fragment {
     Log.d(LOG_TAG, "setValuesToDefault: " + storyData);
     titleET.setText(storyData.getTitle());
     bodyET.setText(storyData.getBody());
-    audioLinkET.setText("file:///" + String.valueOf(storyData.getAudioLink()).toString());
-    videoLinkET.setText(storyData.getVideoLink());
+    String audioLink = storyData.getAudioLink();
+    if (audioLink.isEmpty()) {
+      removeAudio.setEnabled(false);
+    }
+    else {
+      audioLink = String.format("file:///%s", audioLink);
+    }
+    audioLinkET.setText(audioLink);
+    String videoLink = storyData.getVideoLink();
+    removeVideo.setEnabled(!videoLink.isEmpty());
+    videoLinkET.setText(videoLink);
+    String imageLink = storyData.getImageLink();
+    imageTitleET.setEnabled(!imageLink.isEmpty());
     imageTitleET.setText(storyData.getImageName());
-    imageMetaDataET.setText(storyData.getImageLink());
+    removeImage.setEnabled(!imageLink.isEmpty());
+    imageMetaDataET.setText(imageLink);
     tagsET.setText(storyData.getTags());
     storyTimeET.setText(StoryData.FORMAT.format(storyData.getStoryTime()));
     latitudeET.setText(String.valueOf(storyData.getLatitude()));

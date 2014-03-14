@@ -208,7 +208,7 @@ public class StoryViewFragment extends Fragment {
     String audioLinkPath = storyData.getAudioLink();
 
     if (audioLinkPath.isEmpty()) {
-      audioButton.setEnabled(false);
+      audioButton.setVisibility(View.GONE);
     }
     else {
       final Ringtone ringtone =
@@ -225,7 +225,10 @@ public class StoryViewFragment extends Fragment {
     // and the video view already set up in the layout file.
 
     String videoLinkPath = storyData.getVideoLink();
-    if (!videoLinkPath.isEmpty()) {
+    if (videoLinkPath.isEmpty()) {
+      videoLinkView.setVisibility(View.GONE);
+    }
+    else {
       MediaController controller = new MediaController(getActivity());
       controller.setAnchorView(videoLinkView);
       videoLinkView.setMediaController(controller);

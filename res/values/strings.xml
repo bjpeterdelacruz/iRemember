@@ -198,6 +198,9 @@ University of Maryland to appear in their names.
     <string name="story_edit_label_story_time">Story Time</string>
     <string name="story_edit_label_latitude">Latitude</string>
     <string name="story_edit_label_longitude">Longitude</string>
+    <string name="story_edit_new_button_value">New</string>
+    <string name="story_edit_remove_button_value">Remove</string>
+    <string name="story_edit_tags">Tags</string>
 
     <!-- story View Fragment Strings : Default Values -->
 
