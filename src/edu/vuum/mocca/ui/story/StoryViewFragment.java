@@ -48,12 +48,13 @@ University of Maryland to appear in their names.
 
 package edu.vuum.mocca.ui.story;
 
+import java.io.IOException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -76,6 +77,9 @@ import edu.vuum.mocca.orm.StoryData;
 public class StoryViewFragment extends Fragment {
 
   private static final String LOG_TAG = StoryViewFragment.class.getCanonicalName();
+
+  private static final String PLAY_AUDIO = "Play Audio";
+  private static final String STOP_AUDIO = "Stop Audio";
 
   private MoocResolver resolver;
   final static String ROW_IDENTIFIER_TAG = "index";
@@ -205,18 +209,44 @@ public class StoryViewFragment extends Fragment {
     titleTV.setText(storyData.getTitle());
     bodyTV.setText(storyData.getBody());
 
-    String audioLinkPath = storyData.getAudioLink();
+    final String audioLinkPath = storyData.getAudioLink();
 
     if (audioLinkPath.isEmpty()) {
       audioButton.setVisibility(View.GONE);
     }
     else {
-      final Ringtone ringtone =
-          RingtoneManager.getRingtone(getActivity().getApplicationContext(), Uri.parse(audioLinkPath));
       audioButton.setOnClickListener(new OnClickListener() {
+        private MediaPlayer mediaPlayer = new MediaPlayer();
+
         @Override
         public void onClick(View v) {
-          ringtone.play();
+          audioButton.setText(STOP_AUDIO);
+          if (mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+            audioButton.setText(PLAY_AUDIO);
+            mediaPlayer = new MediaPlayer();
+            return;
+          }
+          mediaPlayer.setOnCompletionListener(new OnCompletionListener() {
+
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+              audioButton.setText(PLAY_AUDIO);
+              mediaPlayer = new MediaPlayer();
+            }
+
+          });
+          try {
+            mediaPlayer.setDataSource(audioLinkPath);
+            mediaPlayer.prepare();
+          }
+          catch (IOException ioe) {
+            Log.i(LOG_TAG, ioe.getMessage());
+            Toast.makeText(getActivity(), "Unable to play audio recording. See log for details.", Toast.LENGTH_LONG)
+                .show();
+            return;
+          }
+          mediaPlayer.start();
         }
       });
     }
