@@ -51,17 +51,17 @@ package edu.vuum.mocca.ui.story;
 import java.io.File;
 import java.io.IOException;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import edu.vanderbilt.mooc.R;
 
 /**
  * This activity will capture audio.
@@ -74,14 +74,18 @@ public class SoundRecordActivity extends Activity {
 
   private static final String LOG_TAG = SoundRecordActivity.class.getName();
 
+  private static final String START_RECORDING = "Start recording";
+  private static final String STOP_RECORDING = "Stop recording";
+  private static final String START_PLAYBACK = "Start playback";
+  private static final String STOP_PLAYBACK = "Stop playback";
+  private static final String CLEAR_RECORDING = "Clear recording";
+
   private static String mFileName;
 
   private boolean recorded = false;
 
-  private RecordButton mRecordButton;
+  private Button mRecordButton, mPlayButton, mCancelButton;
   private MediaRecorder mRecorder;
-
-  private PlayButton mPlayButton;
   private MediaPlayer mPlayer;
 
   private void onRecord(boolean start) {
@@ -111,6 +115,15 @@ public class SoundRecordActivity extends Activity {
     if (start) {
       try {
         mPlayer = new MediaPlayer();
+        mPlayer.setOnCompletionListener(new OnCompletionListener() {
+
+          @Override
+          public void onCompletion(MediaPlayer mp) {
+            mPlayButton.setText(START_PLAYBACK);
+            playListener.mStartPlaying = true;
+          }
+
+        });
         mPlayer.setDataSource(mFileName);
         mPlayer.prepare();
         mPlayer.start();
@@ -125,71 +138,65 @@ public class SoundRecordActivity extends Activity {
     }
   }
 
-  private class RecordButton extends Button {
+  private class RecordListener implements OnClickListener {
     private boolean mStartRecording = true;
 
-    private OnClickListener clicker = new OnClickListener() {
-      public void onClick(View v) {
-        onRecord(mStartRecording);
-        if (mStartRecording) {
-          setText("Stop recording");
-        }
-        else {
-          Intent data = new Intent();
-          data.putExtra(Constants.REQUEST_CODE, Constants.MIC_SOUND_REQUEST);
-          data.putExtra("data", mFileName);
-          setResult(RESULT_OK, data);
-          setText("Start recording");
-        }
-        mStartRecording = !mStartRecording;
+    public void onClick(View v) {
+      onRecord(mStartRecording);
+      if (mStartRecording) {
+        mRecordButton.setText(STOP_RECORDING);
       }
-    };
-
-    public RecordButton(Context ctx) {
-      super(ctx);
-      setText("Start recording");
-      setOnClickListener(clicker);
+      else {
+        Intent data = new Intent();
+        data.putExtra(Constants.REQUEST_CODE, Constants.MIC_SOUND_REQUEST);
+        data.putExtra("data", mFileName);
+        setResult(RESULT_OK, data);
+        mRecordButton.setText(START_RECORDING);
+        mPlayButton.setEnabled(true);
+        mCancelButton.setEnabled(true);
+      }
+      mStartRecording = !mStartRecording;
     }
-  }
+  };
 
-  private class PlayButton extends Button {
+  private class PlayListener implements OnClickListener {
     private boolean mStartPlaying = true;
 
-    private OnClickListener clicker = new OnClickListener() {
-      public void onClick(View v) {
-        onPlay(mStartPlaying);
-        if (mStartPlaying) {
-          setText("Stop playing");
-        }
-        else {
-          setText("Start playing");
-        }
-        mStartPlaying = !mStartPlaying;
-      }
-    };
-
-    public PlayButton(Context ctx) {
-      super(ctx);
-      setText("Start playing");
-      setOnClickListener(clicker);
+    public void onClick(View v) {
+      onPlay(mStartPlaying);
+      mPlayButton.setText(mStartPlaying ? STOP_PLAYBACK : START_PLAYBACK);
+      mStartPlaying = !mStartPlaying;
     }
-  }
+  };
+
+  private final PlayListener playListener = new PlayListener();
 
   @Override
   public void onCreate(Bundle icicle) {
     super.onCreate(icicle);
 
-    LinearLayout ll = new LinearLayout(this);
-    mRecordButton = new RecordButton(this);
-    ll.addView(mRecordButton, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-        ViewGroup.LayoutParams.WRAP_CONTENT, 0));
-    mPlayButton = new PlayButton(this);
-    ll.addView(mPlayButton, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-        ViewGroup.LayoutParams.WRAP_CONTENT, 0));
-    setContentView(ll);
+    setContentView(R.layout.activity_sound_record);
+    mRecordButton = (Button) findViewById(R.id.record_audio);
+    mRecordButton.setText(START_RECORDING);
+    mRecordButton.setOnClickListener(new RecordListener());
+    mPlayButton = (Button) findViewById(R.id.play_audio);
+    mPlayButton.setText(START_PLAYBACK);
+    mPlayButton.setEnabled(false);
+    mPlayButton.setOnClickListener(playListener);
+    mCancelButton = (Button) findViewById(R.id.cancel);
+    mCancelButton.setText(CLEAR_RECORDING);
+    mCancelButton.setEnabled(false);
+    mCancelButton.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        recorded = false;
+        mPlayButton.setEnabled(false);
+        mCancelButton.setEnabled(false);
+      }
+    });
 
     Intent caller = getIntent();
-    mFileName = new File(((Uri) caller.getExtras().get(Constants.EXTRA_OUTPUT)).getPath()).getAbsolutePath();
+    mFileName = new File(((Uri) caller.getExtras().get(Constants.OUTPUT_FILENAME)).getPath()).getAbsolutePath();
 
     Log.i(LOG_TAG, "Filename: " + mFileName);
   }

@@ -80,7 +80,6 @@ public class StoryDataArrayAdaptor extends ArrayAdapter<StoryData> {
     try {
       StoryData item = getItem(position);
 
-      long keyId = item.getKeyId();
       String title = item.getTitle();
       long creationTime = item.getStoryTime();
 
@@ -94,14 +93,11 @@ public class StoryDataArrayAdaptor extends ArrayAdapter<StoryData> {
         todoView = (LinearLayout) convertView;
       }
 
-      TextView keyIdTV = (TextView) todoView.findViewById(R.id.story_listview_custom_row_KEY_ID_textView);
-
       TextView titleTV = (TextView) todoView.findViewById(R.id.story_listview_custom_row_title_textView);
       TextView creationTimeTV = (TextView) todoView.findViewById(R.id.story_listview_custom_row_creation_time_textView);
 
-      keyIdTV.setText(String.valueOf(keyId));
       titleTV.setText(String.valueOf(title));
-      creationTimeTV.setText(StoryData.FORMAT.format(creationTime));
+      creationTimeTV.setText(Utils.formatDateTime(creationTime));
       Log.i(LOG_TAG, String.valueOf(item.getCreationTime()));
 
     }

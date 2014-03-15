@@ -71,8 +71,6 @@ import android.os.Parcelable;
  */
 public class StoryData implements Parcelable {
 
-  public final static SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-
   private final long keyId;
   private final long loginId;
   private final long storyId;

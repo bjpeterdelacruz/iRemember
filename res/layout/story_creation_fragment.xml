@@ -108,9 +108,9 @@
             <TableRow>
 
                 <EditText
-                    android:id="@+id/story_create_value_image_name"
+                    android:id="@+id/story_image_file_name"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="75dp"
                     android:layout_span="2"
                     android:ellipsize="none"
                     android:hint="@string/story_create_image_name_hint_value"

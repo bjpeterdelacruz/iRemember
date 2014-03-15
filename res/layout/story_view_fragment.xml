@@ -3,8 +3,8 @@
     android:id="@+id/StoryEditRelativeLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:background="#ffffff" >
+    android:background="#ffffff"
+    android:orientation="horizontal" >
 
     <ScrollView
         android:id="@+id/scrollView1"
@@ -73,8 +73,8 @@
                     android:id="@+id/story_view_value_video_link"
                     android:layout_width="match_parent"
                     android:layout_height="350dp"
-                    android:layout_span="2"
-                    android:layout_marginTop="10dp" />
+                    android:layout_marginTop="10dp"
+                    android:layout_span="2" />
             </TableRow>
 
             <TableRow

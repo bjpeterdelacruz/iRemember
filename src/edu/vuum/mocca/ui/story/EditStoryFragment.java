@@ -48,7 +48,6 @@ University of Maryland to appear in their names.
 
 package edu.vuum.mocca.ui.story;
 
-import java.text.ParseException;
 import java.util.Date;
 import android.app.Activity;
 import android.content.Intent;
@@ -77,17 +76,15 @@ public class EditStoryFragment extends Fragment implements CustomFragment {
 
   // Variable for passing around row index
   final static String ROW_IDENTIFIER_TAG = "index";
-  private EditText titleET;
-  private EditText bodyET;
-  private TextView audioLinkET;
-  private TextView videoLinkET;
-  private EditText imageTitleET;
-  private TextView imageMetaDataET;
-  private EditText tagsET;
-  private TextView storyTimeET;
+  private EditText titleText;
+  private EditText bodyText;
+  private TextView audioLocation, videoLocation, imageLocation;
+  private EditText imageNameText;
+  private EditText tagsText;
+  private TextView storyTime;
   private Date date;
-  private EditText latitudeET;
-  private EditText longitudeET;
+  private EditText latitudeText;
+  private EditText longitudeText;
 
   private Button newAudio, removeAudio, newVideo, removeVideo, newImage, removeImage;
 
@@ -105,6 +102,21 @@ public class EditStoryFragment extends Fragment implements CustomFragment {
   @Override
   public void setImagePath(Uri imagePath) {
     this.imagePath = imagePath;
+  }
+
+  @Override
+  public String getAudioFilename() {
+    return "";
+  }
+
+  @Override
+  public String getVideoFilename() {
+    return "";
+  }
+
+  @Override
+  public String getImageFilename() {
+    return "";
   }
 
   // TODO Determine/label pattern.
@@ -169,16 +181,16 @@ public class EditStoryFragment extends Fragment implements CustomFragment {
     resetButton = (Button) getView().findViewById(R.id.story_edit_button_reset);
     cancelButton = (Button) getView().findViewById(R.id.story_edit_button_cancel);
 
-    titleET = (EditText) getView().findViewById(R.id.story_edit_title);
-    bodyET = (EditText) getView().findViewById(R.id.story_edit_body);
-    audioLinkET = (TextView) getView().findViewById(R.id.story_edit_audio_link);
-    videoLinkET = (TextView) getView().findViewById(R.id.story_edit_video_link);
-    imageTitleET = (EditText) getView().findViewById(R.id.story_edit_image_title);
-    imageMetaDataET = (TextView) getView().findViewById(R.id.story_edit_image_meta_data);
-    tagsET = (EditText) getView().findViewById(R.id.story_edit_tags);
-    storyTimeET = (TextView) getView().findViewById(R.id.story_edit_story_time);
-    latitudeET = (EditText) getView().findViewById(R.id.story_edit_latitude);
-    longitudeET = (EditText) getView().findViewById(R.id.story_edit_longitude);
+    titleText = (EditText) getView().findViewById(R.id.story_edit_title);
+    bodyText = (EditText) getView().findViewById(R.id.story_edit_body);
+    audioLocation = (TextView) getView().findViewById(R.id.story_edit_audio_link);
+    videoLocation = (TextView) getView().findViewById(R.id.story_edit_video_link);
+    imageNameText = (EditText) getView().findViewById(R.id.story_edit_image_title);
+    imageLocation = (TextView) getView().findViewById(R.id.story_edit_image_meta_data);
+    tagsText = (EditText) getView().findViewById(R.id.story_edit_tags);
+    storyTime = (TextView) getView().findViewById(R.id.story_edit_story_time);
+    latitudeText = (EditText) getView().findViewById(R.id.story_edit_latitude);
+    longitudeText = (EditText) getView().findViewById(R.id.story_edit_longitude);
 
     newAudio = (Button) getView().findViewById(R.id.story_edit_new_audio);
     removeAudio = (Button) getView().findViewById(R.id.story_edit_remove_audio);
@@ -191,7 +203,7 @@ public class EditStoryFragment extends Fragment implements CustomFragment {
 
       @Override
       public void onClick(View view) {
-        Utils.launchSoundIntent(getActivity());
+        Utils.launchSoundIntent(getActivity(), null);
       }
 
     });
@@ -199,7 +211,7 @@ public class EditStoryFragment extends Fragment implements CustomFragment {
 
       @Override
       public void onClick(View view) {
-        audioLinkET.setText(""); // TODO: Delete file from OS
+        audioLocation.setText(""); // TODO: Delete file from OS
         removeAudio.setEnabled(false);
       }
 
@@ -208,7 +220,7 @@ public class EditStoryFragment extends Fragment implements CustomFragment {
 
       @Override
       public void onClick(View view) {
-        Utils.launchVideoCameraIntent(getActivity());
+        Utils.launchVideoCameraIntent(getActivity(), null);
       }
 
     });
@@ -216,7 +228,7 @@ public class EditStoryFragment extends Fragment implements CustomFragment {
 
       @Override
       public void onClick(View view) {
-        videoLinkET.setText(""); // TODO: Delete file from OS
+        videoLocation.setText(""); // TODO: Delete file from OS
         removeVideo.setEnabled(false);
       }
 
@@ -225,7 +237,7 @@ public class EditStoryFragment extends Fragment implements CustomFragment {
 
       @Override
       public void onClick(View view) {
-        Utils.launchCameraIntent(getActivity(), EditStoryFragment.this);
+        Utils.launchCameraIntent(getActivity(), EditStoryFragment.this, null);
       }
 
     });
@@ -233,8 +245,8 @@ public class EditStoryFragment extends Fragment implements CustomFragment {
 
       @Override
       public void onClick(View view) {
-        imageMetaDataET.setText(""); // TODO: Delete file from OS
-        imageTitleET.setEnabled(false);
+        imageLocation.setText(""); // TODO: Delete file from OS
+        imageNameText.setEnabled(false);
         removeImage.setEnabled(false);
       }
 
@@ -258,8 +270,8 @@ public class EditStoryFragment extends Fragment implements CustomFragment {
         if (data != null) {
           imagePath = data.getData();
         }
-        imageMetaDataET.setText(imagePath.toString());
-        imageTitleET.setEnabled(true);
+        imageLocation.setText(imagePath.toString());
+        imageNameText.setEnabled(true);
         removeImage.setEnabled(true);
       }
       break;
@@ -268,14 +280,14 @@ public class EditStoryFragment extends Fragment implements CustomFragment {
         // Audio captured and saved to fileUri specified in the Intent
         String audioPath = (String) data.getExtras().get("data");
         Log.i("EditStoryFragment", audioPath);
-        audioLinkET.setText("file://" + audioPath.toString());
+        audioLocation.setText("file://" + audioPath.toString());
         removeAudio.setEnabled(true);
       }
       break;
     case Constants.CAMERA_VIDEO_REQUEST:
       if (resultCode == CreateStoryActivity.RESULT_OK) {
         // Video captured and saved to fileUri specified in the Intent
-        videoLinkET.setText(data.getData().toString());
+        videoLocation.setText(data.getData().toString());
         removeVideo.setEnabled(true);
       }
       break;
@@ -292,6 +304,8 @@ public class EditStoryFragment extends Fragment implements CustomFragment {
   }
 
   private void doResetButtonClick() {
+    Preferences preferences = new Preferences(getActivity());
+    preferences.clearPreferences();
     setValuesToDefault();
   }
 
@@ -308,7 +322,9 @@ public class EditStoryFragment extends Fragment implements CustomFragment {
       e.printStackTrace();
       return;
     }
-    if (getResources().getBoolean(R.bool.isTablet) == true) {
+    Preferences preferences = new Preferences(getActivity());
+    preferences.clearPreferences();
+    if (getResources().getBoolean(R.bool.isTablet)) {
       mOpener.openViewStoryFragment(getUniqueKey());
     }
     else {
@@ -318,22 +334,19 @@ public class EditStoryFragment extends Fragment implements CustomFragment {
 
   private StoryData makeStoryDataFromUI() {
 
-    Editable titleEditable = titleET.getText();
-    Editable bodyEditable = bodyET.getText();
-    String audioLinkEditable = (String) audioLinkET.getText();
-    String videoLinkEditable = (String) videoLinkET.getText();
-    Editable imageNameEditable = imageTitleET.getText();
-    String imageMetaDataEditable = (String) imageMetaDataET.getText();
-    Editable tagsEditable = tagsET.getText();
-    String storyTimeEditable = (String) storyTimeET.getText();
-    Editable latitudeEditable = latitudeET.getText();
-    Editable longitudeEditable = longitudeET.getText();
+    Editable titleEditable = titleText.getText();
+    Editable bodyEditable = bodyText.getText();
+    String audioLinkEditable = (String) audioLocation.getText();
+    String videoLinkEditable = (String) videoLocation.getText();
+    Editable imageNameEditable = imageNameText.getText();
+    String imageMetaDataEditable = (String) imageLocation.getText();
+    Editable tagsEditable = tagsText.getText();
+    String storyTimeEditable = (String) storyTime.getText();
+    Editable latitudeEditable = latitudeText.getText();
+    Editable longitudeEditable = longitudeText.getText();
 
-    try {
-      date = StoryData.FORMAT.parse(storyTimeEditable.toString());
-    }
-    catch (ParseException e1) {
-      Log.e("CreateStoryFragment", "Date was not parsable, reverting to current time");
+    date = Utils.parseDateTime(storyTimeEditable.toString());
+    if (date == null) {
       date = new Date();
     }
 
@@ -358,7 +371,9 @@ public class EditStoryFragment extends Fragment implements CustomFragment {
   }
 
   private void doCancelButtonClick() {
-    if (getResources().getBoolean(R.bool.isTablet) == true) {
+    Preferences preferences = new Preferences(getActivity());
+    preferences.clearPreferences();
+    if (getResources().getBoolean(R.bool.isTablet)) {
       mOpener.openViewStoryFragment(getUniqueKey());
     }
     else {
@@ -368,6 +383,8 @@ public class EditStoryFragment extends Fragment implements CustomFragment {
   }
 
   private boolean setValuesToDefault() {
+
+    Preferences prefs = new Preferences(getActivity());
 
     StoryData storyData;
     try {
@@ -384,33 +401,60 @@ public class EditStoryFragment extends Fragment implements CustomFragment {
     }
 
     Log.d(LOG_TAG, "setValuesToDefault: " + storyData);
-    titleET.setText(storyData.getTitle());
-    bodyET.setText(storyData.getBody());
+    titleText.setText(prefs.hasValue(Constants.TITLE_EDIT) ? prefs.getString(Constants.TITLE_EDIT) : storyData.getTitle());
+    bodyText.setText(prefs.hasValue(Constants.BODY_EDIT) ? prefs.getString(Constants.BODY_EDIT) : storyData.getBody());
     String audioLink = storyData.getAudioLink();
-    if (audioLink.isEmpty()) {
+    if (!prefs.hasValue(Constants.AUDIO_LOCATION_EDIT) && audioLink.isEmpty()) {
       removeAudio.setEnabled(false);
     }
     else {
       audioLink = String.format("file:///%s", audioLink);
     }
-    audioLinkET.setText(audioLink);
+    audioLocation.setText(prefs.hasValue(Constants.AUDIO_LOCATION_EDIT) ? prefs.getString(Constants.AUDIO_LOCATION_EDIT)
+        : audioLink);
     String videoLink = storyData.getVideoLink();
     removeVideo.setEnabled(!videoLink.isEmpty());
-    videoLinkET.setText(videoLink);
+    videoLocation.setText(prefs.hasValue(Constants.VIDEO_LOCATION_EDIT) ? prefs.getString(Constants.VIDEO_LOCATION_EDIT)
+        : videoLink);
     String imageLink = storyData.getImageLink();
-    imageTitleET.setEnabled(!imageLink.isEmpty());
-    imageTitleET.setText(storyData.getImageName());
+    imageNameText.setEnabled(!imageLink.isEmpty());
+    imageNameText.setText(prefs.hasValue(Constants.IMAGE_NAME_EDIT) ? prefs.getString(Constants.IMAGE_NAME_EDIT) : storyData
+        .getImageName());
     removeImage.setEnabled(!imageLink.isEmpty());
-    imageMetaDataET.setText(imageLink);
-    tagsET.setText(storyData.getTags());
-    storyTimeET.setText(StoryData.FORMAT.format(storyData.getStoryTime()));
-    latitudeET.setText(String.valueOf(storyData.getLatitude()));
-    longitudeET.setText(String.valueOf(storyData.getLongitude()));
+    imageLocation.setText(prefs.hasValue(Constants.IMAGE_LOCATION_EDIT) ? prefs.getString(Constants.IMAGE_LOCATION_EDIT)
+        : imageLink);
+    tagsText.setText(storyData.getTags());
+    storyTime.setText(prefs.hasValue(Constants.STORY_TIME_EDIT) ? prefs.getString(Constants.STORY_TIME_EDIT) : Utils
+        .formatDateTime(storyData.getStoryTime()));
+    String lat = String.valueOf(storyData.getLatitude());
+    latitudeText.setText(prefs.hasValue(Constants.LATITUDE_EDIT) ? prefs.getString(Constants.LATITUDE_EDIT) : lat);
+    String lng = String.valueOf(storyData.getLongitude());
+    longitudeText.setText(prefs.hasValue(Constants.LONGITUDE_EDIT) ? prefs.getString(Constants.LONGITUDE_EDIT) : lng);
     return true;
   }
 
   long getUniqueKey() {
     return getArguments().getLong(ROW_IDENTIFIER_TAG, 0);
+  }
+
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    saveFields();
+  }
+
+  private void saveFields() {
+    Preferences preferences = new Preferences(getActivity());
+    preferences.saveString(Constants.TITLE_EDIT, titleText.getText().toString());
+    preferences.saveString(Constants.BODY_EDIT, bodyText.getText().toString());
+    preferences.saveString(Constants.STORY_TIME_EDIT, storyTime.getText().toString());
+    preferences.saveString(Constants.LATITUDE_EDIT, latitudeText.getText().toString());
+    preferences.saveString(Constants.LONGITUDE_EDIT, longitudeText.getText().toString());
+    // text.audioName = audioNameText.getText().toString();
+    // text.videoName = videoNameText.getText().toString();
+    preferences.saveString(Constants.IMAGE_NAME_EDIT, imageNameText.getText().toString());
+    preferences.saveString(Constants.AUDIO_LOCATION_EDIT, audioLocation.getText().toString());
+    preferences.saveString(Constants.VIDEO_LOCATION_EDIT, videoLocation.getText().toString());
+    preferences.saveString(Constants.IMAGE_LOCATION_EDIT, imageLocation.getText().toString());
   }
 
 }

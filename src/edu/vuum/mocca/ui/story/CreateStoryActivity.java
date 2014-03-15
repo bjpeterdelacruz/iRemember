@@ -73,18 +73,21 @@ public class CreateStoryActivity extends StoryActivityBase {
       fragment.setArguments(getIntent().getExtras());
       getSupportFragmentManager().beginTransaction().add(android.R.id.content, fragment).commit();
     }
+    else {
+      fragment = (CreateStoryFragment) getLastCustomNonConfigurationInstance();
+    }
   }
 
   public void addAudioClicked(View aView) {
-    Utils.launchSoundIntent(this);
+    Utils.launchSoundIntent(this, fragment.getAudioFilename());
   }
 
   public void addVideoClicked(View aView) {
-    Utils.launchVideoCameraIntent(this);
+    Utils.launchVideoCameraIntent(this, fragment.getVideoFilename());
   }
 
   public void addPhotoClicked(View aView) {
-    Utils.launchCameraIntent(this, fragment);
+    Utils.launchCameraIntent(this, fragment, fragment.getImageFilename());
   }
 
   public void getDateClicked(View aView) {
@@ -112,20 +115,25 @@ public class CreateStoryActivity extends StoryActivityBase {
       }
     };
 
-    if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-      Log.d(LOG_TAG, "locationManager.isProviderEnabled = true/gps");
-      locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-      Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-      if (location != null) {
-        makeUseOfNewLocation(location);
-      }
-      else {
-        Toast.makeText(getApplicationContext(), "GPS has yet to calculate location.", Toast.LENGTH_LONG).show();
-      }
+    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+      Toast.makeText(getApplicationContext(), "GPS is not enabled.", Toast.LENGTH_LONG).show();
+      return;
+    }
+
+    Log.d(LOG_TAG, "locationManager.isProviderEnabled = true/gps");
+    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+    Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+    if (location == null) {
+      Toast.makeText(getApplicationContext(), "GPS has yet to calculate location.", Toast.LENGTH_LONG).show();
     }
     else {
-      Toast.makeText(getApplicationContext(), "GPS is not enabled.", Toast.LENGTH_LONG).show();
+      makeUseOfNewLocation(location);
     }
+  }
+
+  @Override
+  public Object onRetainCustomNonConfigurationInstance() {
+    return fragment;
   }
 
   private void makeUseOfNewLocation(Location loc) {

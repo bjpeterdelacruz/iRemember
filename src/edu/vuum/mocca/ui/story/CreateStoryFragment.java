@@ -48,7 +48,7 @@ University of Maryland to appear in their names.
 
 package edu.vuum.mocca.ui.story;
 
-import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -60,7 +60,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.app.Fragment;
-import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -75,32 +74,24 @@ import edu.vuum.mocca.orm.StoryData;
 
 public class CreateStoryFragment extends Fragment implements CustomFragment {
 
-  private final static String LOG_TAG = CreateStoryFragment.class.getCanonicalName();
+  private static final String LOG_TAG = CreateStoryFragment.class.getCanonicalName();
 
-  private EditText titleET;
-  private EditText bodyET;
-  private Button videoCaptureButton;
-  private EditText imageNameET;
-  private Button imageCaptureButton;
-  private static TextView storyTimeET;
+  private EditText titleText, bodyText;
+  private static TextView storyTime;
   private Date date;
-  private Button locationButton;
 
-  private TextView imageLocation;
-  private TextView videoLocation;
-  private TextView audioLocation;
+  private TextView audioLocation, videoLocation, imageLocation;
 
-  private Button buttonCreate;
-  private Button buttonClear;
-  private Button buttonCancel;
+  private Button buttonCreate, buttonClear, buttonCancel;
 
-  private TextView latitudeValue;
-  private TextView longitudeValue;
+  private TextView latitudeValue, longitudeValue;
 
-  private Uri imagePath;
-  private Uri fileUri;
+  private Uri imagePath, fileUri;
+
   private String audioPath;
   private Location loc;
+
+  private EditText audioNameText, videoNameText, imageNameText;
 
   private OnOpenWindowInterface mOpener;
   private MoocResolver resolver;
@@ -110,16 +101,29 @@ public class CreateStoryFragment extends Fragment implements CustomFragment {
     this.imagePath = imagePath;
   }
 
+  @Override
+  public String getAudioFilename() {
+    return audioNameText.getText().toString();
+  }
+
+  @Override
+  public String getVideoFilename() {
+    return videoNameText.getText().toString();
+  }
+
+  @Override
+  public String getImageFilename() {
+    return imageNameText.getText().toString();
+  }
+
   public static CreateStoryFragment newInstance() {
-    CreateStoryFragment f = new CreateStoryFragment();
-    return f;
+    return new CreateStoryFragment();
   }
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setRetainInstance(true);
-
   }
 
   @Override
@@ -142,16 +146,12 @@ public class CreateStoryFragment extends Fragment implements CustomFragment {
   }
 
   @Override
-  public void onActivityCreated(Bundle savedInstanceState) {
-    super.onActivityCreated(savedInstanceState);
+  public void onActivityCreated(Bundle inState) {
+    super.onActivityCreated(inState);
 
-    titleET = (EditText) getView().findViewById(R.id.story_create_value_title);
-    bodyET = (EditText) getView().findViewById(R.id.story_create_value_body);
-    videoCaptureButton = (Button) getView().findViewById(R.id.story_create_value_video_button);
-    imageNameET = (EditText) getView().findViewById(R.id.story_create_value_image_name);
-    imageCaptureButton = (Button) getView().findViewById(R.id.story_create_value_image_button);
-    storyTimeET = (TextView) getView().findViewById(R.id.story_create_value_story_time);
-    locationButton = (Button) getView().findViewById(R.id.story_create_value_location_button);
+    titleText = (EditText) getView().findViewById(R.id.story_create_value_title);
+    bodyText = (EditText) getView().findViewById(R.id.story_create_value_body);
+    storyTime = (TextView) getView().findViewById(R.id.story_create_value_story_time);
 
     imageLocation = (TextView) getView().findViewById(R.id.story_create_value_image_location);
     videoLocation = (TextView) getView().findViewById(R.id.story_create_value_video_location);
@@ -160,6 +160,10 @@ public class CreateStoryFragment extends Fragment implements CustomFragment {
     latitudeValue = (TextView) getView().findViewById(R.id.story_create_value_latitude);
     longitudeValue = (TextView) getView().findViewById(R.id.story_create_value_longitude);
 
+    audioNameText = (EditText) getView().findViewById(R.id.story_audio_file_name);
+    videoNameText = (EditText) getView().findViewById(R.id.story_video_file_name);
+    imageNameText = (EditText) getView().findViewById(R.id.story_image_file_name);
+
     buttonClear = (Button) getView().findViewById(R.id.story_create_button_reset);
     buttonCancel = (Button) getView().findViewById(R.id.story_create_button_cancel);
     buttonCreate = (Button) getView().findViewById(R.id.story_create_button_save);
@@ -167,33 +171,64 @@ public class CreateStoryFragment extends Fragment implements CustomFragment {
     buttonClear.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
-        titleET.setText("");
-        bodyET.setText("");
-        videoCaptureButton.setText("");
-        imageNameET.setText("");
-        imageCaptureButton.setText("");
-        storyTimeET.setText("0");
-        locationButton.setText("0");
+        titleText.setText("");
+        bodyText.setText("");
+        storyTime.setText("Set Time");
+        latitudeValue.setText("0");
+        longitudeValue.setText("0");
+        audioNameText.setText("");
+        videoNameText.setText("");
+        imageNameText.setText("");
+        audioLocation.setText("");
+        videoLocation.setText("");
+        imageLocation.setText("");
       }
     });
 
     buttonCancel.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
-        if (getResources().getBoolean(R.bool.isTablet) == true) {
+        if (getResources().getBoolean(R.bool.isTablet)) {
           mOpener.openViewStoryFragment(0);
+          return;
         }
-        else {
-          getActivity().finish(); // same as hitting the Back button
+
+        boolean hasText =
+            hasText(titleText) || hasText(bodyText) || hasText(audioNameText) || hasText(videoNameText)
+                || hasText(imageNameText);
+        hasText =
+            hasText || !"Set Time".equals(storyTime.toString()) || !"0.0".equals(latitudeValue.toString())
+                || !"0.0".equals(longitudeValue.toString());
+
+        if (!hasText) {
+          getActivity().finish();
+          return;
         }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage("You have unsaved changes. Are you sure you want to cancel?").setCancelable(false)
+            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+              public void onClick(DialogInterface dialog, int which) {
+                Preferences preferences = new Preferences(getActivity());
+                preferences.clearPreferences();
+                getActivity().finish();
+              }
+            }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+              public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+              }
+            }).create().show();
+      }
+
+      private boolean hasText(EditText text) {
+        return !text.getText().toString().isEmpty();
       }
     });
     buttonCreate.setOnClickListener(new OnClickListener() {
 
       @Override
       public void onClick(View v) {
-        Editable titleCreateable = titleET.getText();
-        String title = titleCreateable.toString();
+        String title = titleText.getText().toString();
         if (title.isEmpty()) {
           AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
           builder.setMessage("Please enter a title for this story.").setCancelable(false)
@@ -204,16 +239,10 @@ public class CreateStoryFragment extends Fragment implements CustomFragment {
               }).create().show();
           return;
         }
-        Editable bodyCreateable = bodyET.getText();
-        Editable imageNameCreateable = imageNameET.getText();
-        String storyTimeCreateable = storyTimeET.getText().toString();
+        String storyTimeCreateable = storyTime.getText().toString();
 
-        // Try to parse the date into long format
-        try {
-          date = StoryData.FORMAT.parse(storyTimeCreateable.toString());
-        }
-        catch (ParseException e1) {
-          Log.e(LOG_TAG, "Date was not parsable, reverting to current time");
+        date = Utils.parseDateTime(storyTimeCreateable.toString());
+        if (date == null) {
           date = new Date();
         }
 
@@ -221,10 +250,10 @@ public class CreateStoryFragment extends Fragment implements CustomFragment {
         long loginId = 0;
         long storyId = 0;
 
-        String body = bodyCreateable.toString();
+        String body = bodyText.getText().toString();
         String audioLink = audioPath == null ? "" : audioPath;
         String videoLink = fileUri == null ? "" : fileUri.toString();
-        String imageName = imageNameCreateable.toString();
+        String imageName = imageNameText.getText().toString();
         String imageData = imagePath == null ? "" : imagePath.toString();
         double latitude = loc == null ? 0 : loc.getLatitude();
         double longitude = loc == null ? 0 : loc.getLongitude();
@@ -245,6 +274,8 @@ public class CreateStoryFragment extends Fragment implements CustomFragment {
           Log.e(LOG_TAG, "Caught RemoteException => " + e.getMessage());
           e.printStackTrace();
         }
+        Preferences preferences = new Preferences(getActivity());
+        preferences.clearPreferences();
         // Return back to proper state
         if (getResources().getBoolean(R.bool.isTablet) == true) {
           mOpener.openViewStoryFragment(0);
@@ -254,6 +285,25 @@ public class CreateStoryFragment extends Fragment implements CustomFragment {
         }
       }
     });
+
+    Preferences prefs = new Preferences(getActivity());
+
+    titleText.setText(prefs.getString(Constants.TITLE_CREATE));
+    bodyText.setText(prefs.getString(Constants.BODY_CREATE));
+
+    String text = prefs.getString(Constants.STORY_TIME_CREATE);
+    storyTime.setText(text.isEmpty() ? getResources().getString(R.string.story_create_set_time_text_value) : text);
+    text = prefs.getString(Constants.LATITUDE_CREATE);
+    latitudeValue.setText(text.isEmpty() ? "0.0" : text);
+    text = prefs.getString(Constants.LONGITUDE_CREATE);
+    longitudeValue.setText(text.isEmpty() ? "0.0" : text);
+
+    audioNameText.setText(prefs.getString(Constants.AUDIO_NAME_CREATE));
+    videoNameText.setText(prefs.getString(Constants.VIDEO_NAME_CREATE));
+    imageNameText.setText(prefs.getString(Constants.IMAGE_NAME_CREATE));
+    audioLocation.setText(prefs.getString(Constants.AUDIO_LOCATION_CREATE));
+    videoLocation.setText(prefs.getString(Constants.VIDEO_LOCATION_CREATE));
+    imageLocation.setText(prefs.getString(Constants.IMAGE_LOCATION_CREATE));
 
   }
 
@@ -299,19 +349,11 @@ public class CreateStoryFragment extends Fragment implements CustomFragment {
 
   static void setStringDate(int year, int monthOfYear, int dayOfMonth) {
 
-    // Increment monthOfYear for Calendar/Date -> Time Format setting
-    monthOfYear++;
-    String mon = "" + monthOfYear;
-    String day = "" + dayOfMonth;
-
-    if (monthOfYear < 10) {
-      mon = "0" + monthOfYear;
-    }
-    if (dayOfMonth < 10) {
-      day = "0" + dayOfMonth;
-    }
-
-    storyTimeET.setText(year + "-" + mon + "-" + day);
+    Calendar calendar = Calendar.getInstance();
+    calendar.set(Calendar.YEAR, year);
+    calendar.set(Calendar.MONTH, monthOfYear);
+    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+    storyTime.setText(Utils.formatDateTime(calendar.getTimeInMillis()));
 
   }
 
@@ -320,6 +362,26 @@ public class CreateStoryFragment extends Fragment implements CustomFragment {
     View view = inflater.inflate(R.layout.story_creation_fragment, container, false);
     container.setBackgroundColor(Color.GRAY);
     return view;
+  }
+
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    saveFields();
+  }
+
+  private void saveFields() {
+    Preferences preferences = new Preferences(getActivity());
+    preferences.saveString(Constants.TITLE_CREATE, titleText.getText().toString());
+    preferences.saveString(Constants.BODY_CREATE, bodyText.getText().toString());
+    preferences.saveString(Constants.STORY_TIME_CREATE, storyTime.getText().toString());
+    preferences.saveString(Constants.LATITUDE_CREATE, latitudeValue.getText().toString());
+    preferences.saveString(Constants.LONGITUDE_CREATE, longitudeValue.getText().toString());
+    preferences.saveString(Constants.AUDIO_NAME_CREATE, audioNameText.getText().toString());
+    preferences.saveString(Constants.VIDEO_NAME_CREATE, videoNameText.getText().toString());
+    preferences.saveString(Constants.IMAGE_NAME_CREATE, imageNameText.getText().toString());
+    preferences.saveString(Constants.AUDIO_LOCATION_CREATE, audioLocation.getText().toString());
+    preferences.saveString(Constants.VIDEO_LOCATION_CREATE, videoLocation.getText().toString());
+    preferences.saveString(Constants.IMAGE_LOCATION_CREATE, imageLocation.getText().toString());
   }
 
 }

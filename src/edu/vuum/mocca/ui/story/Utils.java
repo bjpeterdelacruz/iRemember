@@ -1,6 +1,7 @@
 package edu.vuum.mocca.ui.story;
 
 import java.io.File;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -16,14 +17,26 @@ public final class Utils {
 
   private static final String LOG_TAG = Utils.class.getCanonicalName();
 
+  private final static SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
   private Utils() {
   }
 
-  static Uri getOutputMediaFileUri(MediaType type) {
-    return Uri.fromFile(getOutputMediaFile(type));
+  static String formatDateTime(long dateTime) {
+    return FORMAT.format(dateTime);
   }
 
-  private static File getOutputMediaFile(MediaType type) {
+  static Date parseDateTime(String dateTime) {
+    try {
+      return FORMAT.parse(dateTime);
+    }
+    catch (ParseException e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  static Uri getOutputMediaFileUri(MediaType type, String filename) {
     Log.d(LOG_TAG, "Media type: " + type);
     String state = Environment.getExternalStorageState();
     Log.i(LOG_TAG, "External storage state: " + state);
@@ -44,42 +57,49 @@ public final class Utils {
       return null;
     }
 
-    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+    String prefix = mediaStorageDir.getPath() + File.separator;
     File mediaFile;
     switch (type) {
     case MEDIA_TYPE_IMAGE:
-      mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp + ".jpg");
+      mediaFile = new File(prefix + generateFilename("IMG_", filename, ".jpg"));
       break;
     case MEDIA_TYPE_VIDEO:
-      mediaFile = new File(mediaStorageDir.getPath() + File.separator + "VID_" + timeStamp + ".mp4");
+      mediaFile = new File(prefix + generateFilename("VID_", filename, ".mp4"));
       break;
     case MEDIA_TYPE_AUDIO:
-      mediaFile = new File(mediaStorageDir.getPath() + File.separator + "AUD_" + timeStamp + ".3gp");
+      mediaFile = new File(prefix + generateFilename("AUD_", filename, ".3gp"));
       break;
     default:
       throw new IllegalArgumentException("Unsupported media type: " + type);
     }
 
-    return mediaFile;
+    return Uri.fromFile(mediaFile);
   }
 
-  static void launchSoundIntent(Activity activity) {
+  private static String generateFilename(String prefix, String filename, String suffix) {
+    if (filename != null && !filename.isEmpty()) {
+      return filename.endsWith(suffix) ? filename : filename + suffix;
+    }
+    return prefix + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()) + suffix;
+  }
+
+  static void launchSoundIntent(Activity activity, String filename) {
     Intent intent = new Intent(activity, SoundRecordActivity.class);
-    intent.putExtra(Constants.EXTRA_OUTPUT, getOutputMediaFileUri(MediaType.MEDIA_TYPE_AUDIO));
+    intent.putExtra(Constants.OUTPUT_FILENAME, getOutputMediaFileUri(MediaType.MEDIA_TYPE_AUDIO, filename));
     activity.startActivityForResult(intent, Constants.MIC_SOUND_REQUEST);
   }
 
-  static void launchCameraIntent(Activity activity, CustomFragment fragment) {
+  static void launchCameraIntent(Activity activity, CustomFragment fragment, String filename) {
     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-    Uri imagePath = getOutputMediaFileUri(MediaType.MEDIA_TYPE_IMAGE);
+    Uri imagePath = getOutputMediaFileUri(MediaType.MEDIA_TYPE_IMAGE, filename);
     fragment.setImagePath(imagePath);
     intent.putExtra(MediaStore.EXTRA_OUTPUT, imagePath);
     activity.startActivityForResult(intent, Constants.CAMERA_PIC_REQUEST);
   }
 
-  static void launchVideoCameraIntent(Activity activity) {
+  static void launchVideoCameraIntent(Activity activity, String filename) {
     Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-    intent.putExtra(MediaStore.EXTRA_OUTPUT, getOutputMediaFileUri(MediaType.MEDIA_TYPE_VIDEO));
+    intent.putExtra(MediaStore.EXTRA_OUTPUT, getOutputMediaFileUri(MediaType.MEDIA_TYPE_VIDEO, filename));
     intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
     activity.startActivityForResult(intent, Constants.CAMERA_VIDEO_REQUEST);
   }

@@ -244,7 +244,7 @@ public class StoryViewFragment extends Fragment {
     imageMetaDataView.setImageURI(Uri.parse(imageMetaDataPath));
 
     Long time = Long.valueOf(storyData.getStoryTime());
-    storyTimeTV.setText(StoryData.FORMAT.format(time));
+    storyTimeTV.setText(Utils.formatDateTime(time));
 
     latitudeTV.setText(String.format("%.1f", storyData.getLatitude()));
     longitudeTV.setText(String.format("%.1f", storyData.getLongitude()));

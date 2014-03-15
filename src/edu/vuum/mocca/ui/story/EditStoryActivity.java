@@ -55,6 +55,8 @@ import android.os.Bundle;
  */
 public class EditStoryActivity extends StoryActivityBase {
 
+  private EditStoryFragment fragment;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -62,13 +64,19 @@ public class EditStoryActivity extends StoryActivityBase {
     if (savedInstanceState == null) {
       // During initial setup, plug in the details fragment.
       long index = getIntent().getExtras().getLong(EditStoryFragment.ROW_IDENTIFIER_TAG);
-
-      EditStoryFragment editor = EditStoryFragment.newInstance(index);
-
-      editor.setArguments(getIntent().getExtras());
-
-      getSupportFragmentManager().beginTransaction().add(android.R.id.content, editor).commit();
+      fragment = EditStoryFragment.newInstance(index);
+      fragment.setArguments(getIntent().getExtras());
+      getSupportFragmentManager().beginTransaction().add(android.R.id.content, fragment).commit();
     }
+    else {
+      fragment = (EditStoryFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mContent");
+    }
+  }
+
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    getSupportFragmentManager().putFragment(outState, "mContent", fragment);
   }
 
 }
