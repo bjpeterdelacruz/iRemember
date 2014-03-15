@@ -78,6 +78,13 @@ public class CreateStoryActivity extends StoryActivityBase {
     }
   }
 
+  @Override
+  public void onBackPressed() {
+    Preferences preferences = new Preferences(this);
+    preferences.clearPreferences();
+    super.onBackPressed();
+  }
+
   public void addAudioClicked(View aView) {
     Utils.launchSoundIntent(this, fragment.getAudioFilename());
   }

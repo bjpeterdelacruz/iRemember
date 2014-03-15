@@ -196,9 +196,11 @@ public class CreateStoryFragment extends Fragment implements CustomFragment {
         boolean hasText =
             hasText(titleText) || hasText(bodyText) || hasText(audioNameText) || hasText(videoNameText)
                 || hasText(imageNameText);
+
         hasText =
-            hasText || !"Set Time".equals(storyTime.toString()) || !"0.0".equals(latitudeValue.toString())
-                || !"0.0".equals(longitudeValue.toString());
+            hasText || !"Set Time".equals(storyTime.getText().toString())
+                || !"0.0".equals(latitudeValue.getText().toString())
+                || !"0.0".equals(longitudeValue.getText().toString());
 
         if (!hasText) {
           getActivity().finish();
